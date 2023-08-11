@@ -70,8 +70,14 @@ section.lime-background {
   background-color: #3a700d;
 }
 
+section.yellow-background:before,
+section.yellow-background h1 {
+  color: #111;
+}
+
 section.yellow-background {
-  background-color: #8f4a11;
+  background-color: #d7b025;
+  color: #111;
 }
 
 /* make sure code snippets are above the copyright notice */

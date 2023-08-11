@@ -1,0 +1,42 @@
+
+### Metals ###
+.metals/
+.bloop/
+project/**/metals.sbt
+
+### SBT ###
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.history
+.cache
+.lib/
+
+### Scala CLI ###
+.scala-build
+
+### SBT Patch ###
+.bsp/
+
+### Scala ###
+*.class
+*.log
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+
+### VisualStudioCode ###
+.vscode/
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+.ionide

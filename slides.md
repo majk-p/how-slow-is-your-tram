@@ -21,6 +21,7 @@ marp: true
 - [@majkp@hostux.social](https://hostux.social/@majkp) 🔌
 
 ---
+
 <!-- _class: divider -->
 
 # Derailment
@@ -32,6 +33,39 @@ marp: true
 ![bg 80%](img/tram-derailment.jpg)
 
 ---
+
+# Derailment
+
+Happens now and then, along with other incidents makes the transportation slow
+
+---
+
+<!-- _class: divider yellow-background -->
+
+# How bad can it be?
+
+Let's find out
+
+---
+
+# Plan
+
+1) Find data source of vehicle positions
+2) Fetch and parse
+3) Fetch some more
+4) Calculate diffs
+5) Produce statistics
+6) Profit
+
+---
+
+# Find data
+
+First shot: [Wrocław Open Data](https://www.wroclaw.pl/open-data/dataset/lokalizacjapojazdowkomunikacjimiejskiejnatrasie_data)
+
+
+
+<!-- 
 
 Agenda
 
@@ -48,4 +82,6 @@ Agenda
 * FS2 to gather some more data
 * Best and worst line
 * Future improvements - S3 to store data? More statistics
-* Summary
+* Summary 
+
+-->
