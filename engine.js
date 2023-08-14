@@ -3,6 +3,8 @@
  * in https://github.com/orgs/marp-team/discussions/164#discussioncomment-6141356
  * 
  * It will only work when used with marp-cli - it's not included by VS Code plugin
+ * 
+ * This code has been modified not to break on `derives` keyword in scala, where line can start with </span>
  */
 
 module.exports = ({ marp }) =>
@@ -14,8 +16,12 @@ module.exports = ({ marp }) =>
       const listItems = original
         .split(/\n(?!$)/)
         .map(
-          (line) =>
-            `<li><span data-marp-line-number></span><span>${line}</span></li>`
+          (line) => {
+            if (line.startsWith("</span>"))
+              return `</span><li><span data-marp-line-number></span><span>${line.substring("</span>".length)}</span></li>`
+            else
+              return `<li><span data-marp-line-number></span><span>${line}</span></li>`
+          }
         )
 
       return `<ol>${listItems.join('')}</ol>`

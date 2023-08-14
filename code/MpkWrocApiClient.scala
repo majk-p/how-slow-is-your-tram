@@ -1,15 +1,8 @@
 import cats.effect.*
 import cats.implicits.given
+import io.circe.Codec
 import sttp.client3.*
 import sttp.client3.circe.*
-import sttp.client3.httpclient.fs2.HttpClientFs2Backend
-import io.circe.Codec
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
-import io.circe.Decoder
-import java.time.format.DateTimeFormatter
-import java.time.ZoneId
 import sttp.model.MediaType
 
 
@@ -44,7 +37,6 @@ object MpkWrocApiClient {
 
   case class Record(
     name: String,
-    // `type`: String,
     x: Double,
     y: Double,
     k: Int
