@@ -19,7 +19,7 @@ import scala.concurrent.duration.*
 import cats.kernel.Monoid
 
 
-object Hello extends IOApp.Simple {
+object Main extends IOApp.Simple {
   def run = 
     HttpClientFs2Backend
       .resource[IO]()

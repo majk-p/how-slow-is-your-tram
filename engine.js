@@ -7,6 +7,14 @@
  * This code has been modified not to break on `derives` keyword in scala, where line can start with </span>
  */
 
+function removeFirstClosingSpan(inputString) {
+  const token = "</span>"
+  const pattern = new RegExp(`^(\\s*)${token}`);
+  const result = inputString.replace(pattern, '\$1');
+  return result;
+}
+
+
 module.exports = ({ marp }) =>
   marp.use(({ marpit }) => {
     const { highlighter } = marpit
@@ -17,8 +25,8 @@ module.exports = ({ marp }) =>
         .split(/\n(?!$)/)
         .map(
           (line) => {
-            if (line.startsWith("</span>"))
-              return `</span><li><span data-marp-line-number></span><span>${line.substring("</span>".length)}</span></li>`
+            if (line.trim().startsWith("</span>"))
+              return `</span><li><span data-marp-line-number></span><span>${removeFirstClosingSpan(line)}</span></li>`
             else
               return `<li><span data-marp-line-number></span><span>${line}</span></li>`
           }

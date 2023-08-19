@@ -15,9 +15,6 @@ object MpkWrocApiClient {
   def apply[F[_]](using ev: MpkWrocApiClient[F]): MpkWrocApiClient[F] = ev
 
   private val apiUri = uri"https://mpk.wroc.pl/bus_position"
-  private val trams = List("16", "18", "31")
-  private val buses = List("110")
-
 
   def instance(backend: SttpBackend[IO, Any])(buses: List[String], trams: List[String]): MpkWrocApiClient[IO] = 
     new MpkWrocApiClient[IO] {
