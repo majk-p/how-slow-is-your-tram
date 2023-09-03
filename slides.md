@@ -24,19 +24,15 @@ marp: true
 
 <!-- _class: divider -->
 
-# Derailment
+# So trams in Wrocław
 
 ---
 
 <!-- _class: divider -->
 
-![bg 80%](img/tram-derailment.jpg)
+# They get creative
 
----
-
-# Derailment
-
-Happens now and then, along with other incidents makes the transportation slow
+![bg right:55% 95%](img/tram-derailment.jpg)
 
 ---
 
@@ -75,10 +71,6 @@ _id  Nr_Boczny  Nr_Rej  Brygada  Nazwa_Linii  Ostatnia_Pozycja_Szerokosc  Ostatn
 3    2206       None    01517                 51.1253318786621            17.0414428710938          2023-08-12 16:09:33.540000
 4    2208       None    00309                 51.1245498657227            17.0415744781494          2023-08-12 16:08:45.613000
 5    2212       None                          51.079460144043             17.0047359466553          2023-08-12 16:08:49.817000
-6    2218       None    02320                 51.1252136230469            17.040599822998           2023-08-12 16:08:45.647000
-7    2228       None    00807                 51.1247787475586            17.0387763977051          2023-08-12 16:09:30.653000
-8    2237       None    00307                 51.1240081787109            17.0415725708008          2023-08-12 16:09:10.590000
-9    2238       None    None     None         51.1238594055176            17.0406036376953          2023-04-30 02:21:09.067000
 ```
 ###### Data fetched on 12.08.2023
 
@@ -87,7 +79,8 @@ _id  Nr_Boczny  Nr_Rej  Brygada  Nazwa_Linii  Ostatnia_Pozycja_Szerokosc  Ostatn
 # Some of it is pretty old 👴
 
 ```bash
-$ curl -s https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b7-fdd168c210a2 | tail -n +2 | sort -t, -k 8,8 | head | column -t -s,      
+$ curl -s https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b7-fdd168c210a2 | 
+tail -n +2 | sort -t, -k 8,8 | head | column -t -s,      
 34   2316  None                  51.1242408752441  17.0405292510986  2022-06-23 21:32:15.773000
 557  8403  None     N10    N     51.1076545715332  17.0392875671387  2022-07-05 15:48:04.690000
 324  4639  None                  51.0772018432617  17.0711059570312  2022-08-22 01:11:25.087000
@@ -96,8 +89,6 @@ $ curl -s https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b
 459  7400  None     10001        51.1481552124023  17.0230255126953  2022-09-25 04:40:37.697000
 329  4807  None     None   None  51.1492080688477  17.0239391326904  2022-09-26 09:21:55.910000
 398  7004  DW3987J               54.5531539916992  17.7985401153564  2022-10-03 15:53:05.910000
-331  4810  None                  51.0665893554688  17.0993785858154  2022-10-13 09:22:55.650000
-332  4811  None                  51.0667343139648  17.0992298126221  2022-10-13 09:32:45.753000
 ```
 
 * Inconsistent
@@ -122,7 +113,13 @@ $ curl -s https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b
 
 https://mpk.wroc.pl/strefa-pasazera/zaplanuj-podroz/mapa-pozycji-pojazdow
 
-![height:400px](./img/interactive-map.png)
+---
+
+![height:630px](./img/interactive-map.png)
+
+---
+
+![bg height:90%](./img/api-docs-half.png)
 
 ---
 
@@ -185,7 +182,7 @@ curl -s 'https://mpk.wroc.pl/bus_position' \
 
 ---
 
-# What does it mean?
+# What does it mean? 🤔
 
 * `name` - line name like `31`, `33`, `110`
 * `type` - one of `tram`, `bus`
@@ -218,7 +215,7 @@ curl -s 'https://mpk.wroc.pl/bus_position' \
 
 # Fetch and parse
 
-Shape of our reques
+Shape of our request
 * HTTP POST
 * List of vehicles like `busList[bus][]=110&busList[tram][]=31&busList[tram][]=33`
 * `content-type: application/x-www-form-urlencoded`
@@ -260,6 +257,8 @@ val buses = List("110")
 
 def payload(buses: List[String], trams: List[String]) = 
   (trams.map(v => s"busList[tram][]=$v") ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
+
+// ☝️ builds this thing: busList[bus][]=110&busList[tram][]=31&busList[tram][]=33
 ```
 
 ---
@@ -478,35 +477,18 @@ Just wrap the `request` method
 ```scala
 trait MpkWrocApiClient[F[_]] {
   def vehicles(): F[Seq[MpkWrocApiClient.Record]]
+  
+  // 👆 each time we call this, we receive latest data from API
 }
 
 object MpkWrocApiClient {
   def apply[F[_]](using ev: MpkWrocApiClient[F]): MpkWrocApiClient[F] = ev
 
-  private val apiUri = uri"https://mpk.wroc.pl/bus_position"
-
   def instance(backend: SttpBackend[IO, Any])(buses: List[String], trams: List[String]): MpkWrocApiClient[IO] = 
     new MpkWrocApiClient[IO] {
-      def vehicles(): IO[Seq[MpkWrocApiClient.Record]] = 
-        basicRequest
-          .post(apiUri)
-          .body(payload(buses, trams))
-          .contentType(MediaType.ApplicationXWwwFormUrlencoded)
-          .response(asJson[List[Record]])
-          .send(backend)
-          .map(_.body)
-          .rethrow
+      def vehicles(): IO[Seq[MpkWrocApiClient.Record]] =  ???
+        // call the request() method
     }
-
-  case class Record(
-    name: String,
-    x: Double,
-    y: Double,
-    k: Int
-  ) derives Codec.AsObject
-
-  private def payload(buses: List[String], trams: List[String]) = 
-    (trams.map(v => s"busList[tram][]=$v") ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
 
 }
 ```
@@ -599,28 +581,20 @@ trait Vehicles[F[_]] {
 # `Vehicles` service
 
 ```scala
-trait Vehicles[F[_]] {
-  def list(): F[Seq[Vehicle]]
-}
-
-object Vehicles {
-
-  def mpkApiAdapter(client: MpkWrocApiClient[IO]): Vehicles[IO] = 
-    new Vehicles[IO] {                                            // Creates anonymous instance for `IO` effect
-      def list(): IO[Seq[Vehicle]] = 
-        for {
-          now <- IO.realTime                                      // Measure the time of measurement
-          records <- client.vehicles()                            // Use the client to call vehicles
-        } yield {
-          records
-            .map{ record =>                                       // map every resulting row from MPK API
-              Vehicle(                                            // and turn it into our `Vehicle` model
-                lineName = Vehicle.LineName(record.name),
-                measuredAt = Instant.ofEpochMilli(now.toMillis),
-                position = Position(record.x, record.y),
-                id = Vehicle.Id(record.k.toString)
-              )
-            }
+new Vehicles[IO] {
+  def list(): IO[Seq[Vehicle]] = 
+    for {
+      now <- IO.realTime                             // Get the time of measurement
+      records <- client.vehicles()                   // Use the client to list vehicle positions
+    } yield {
+      records
+        .map{ record =>                              // map each resulting row from MPK API
+          Vehicle(                                   // and turn it into our `Vehicle` model
+            lineName = Vehicle.LineName(record.name),
+            measuredAt = Instant.ofEpochMilli(now.toMillis),
+            position = Position(record.x, record.y),
+            id = Vehicle.Id(record.k.toString)
+          )
         }
     }
 }
@@ -628,9 +602,46 @@ object Vehicles {
 
 ---
 
+# `Vehicles` service done ✅
+
+```scala
+trait Vehicles[F[_]] {
+  def list(): F[Seq[Vehicle]]
+}
+```
+
+Now we have an abstract way to fetch meaningful data
+```scala
+case class Vehicle(
+  lineName: Vehicle.LineName,
+  measuredAt: Instant,
+  position: Position,
+  id: Vehicle.Id
+)
+```
+
+
+---
+
 # One last thing
 
 In the next step we'll be looking into the distance covered between two measurements
+
+---
+
+# Distance 
+
+```scala
+case class Vehicle(
+  lineName: Vehicle.LineName,
+  measuredAt: Instant,
+  position: Position,
+  id: Vehicle.Id
+){
+  // calculate distance in meters
+  def distance(other: Vehicle): Double = ???
+}
+```
 
 ---
 
@@ -700,6 +711,9 @@ measurement1.distance(measurement2) // like this
 
 ![bg right:60%](img/stream.jpeg)
 
+---
+
+# Who knows what a stream is? 🤚
 
 ---
 
@@ -719,7 +733,7 @@ Short intro
 
 ---
 
-# FS2: Functional Streams for Scala
+# Let's have an exercise 🏃
 
 * Create an infinite stream of natural numbers `1, 2, 3, 4, 5, ...`
 * Keep only the odd ones `1, 3, 5, 7, ...`
@@ -733,6 +747,27 @@ Short intro
 ## How many lines of code would it take without streams?
 
 Think of it for a second
+
+<!-- 
+Imperative solution
+
+```scala
+var counter = 1
+var sumCounter = 0
+var sum = 0
+
+for (i <- 0 until 10) {
+  for (j <- 0 until 3) {
+    if (counter % 2 != 0) {
+      sum += counter
+    }
+    counter += 1
+  }
+  println(s"Sum ${sumCounter + 1}: $sum")
+  sum = 0
+  sumCounter += 1
+}
+``` -->
 
 ---
 
@@ -765,18 +800,26 @@ val stream: Stream[IO, Int] =
 
 ---
 
-# To the real use case!
+# What should our app do
+
+* Upon each `N` seconds call the API for new data
+* Compare current result with previous one
+  - Find how vehicle moved, calculate diff
+* After a fixed amount of updates, show some statistics
+
+---
+
+# How to implement it
 
 We want to build a stream that:
 
 * Is infinite
 * Acts on given time interval like every `N` seconds
-* When the time comes - it lists vehicles using `Vehicles[IO].list()`
-* Joins previous and current result by vehicle `id`
+* Lists vehicles using `Vehicles[IO].list()`
+* Joins results by vehicle `id`
   - Because vehicles are not sorted and some might go missing
 * Calculate the distance using `Vehicle.distance` and the elapsed time
-* Build a map of `(Vehicle.LineName, Vehicle.Id) -> VehicleStats`
-  - Where `VehicleStats` are distance, time and avg speed
+* Build a map of `(Vehicle.LineName, Vehicle.Id) -> (Distance, AVG Speed)`
 
 
 ---
@@ -809,13 +852,26 @@ Easy right?
 
 # Step by step
 
-The next step - slide over data, take current and previous measurement and calculate the diff
+- Is infinite ✅
+- Acts on given time interval like every `N` seconds ✅
+- When the time comes - it lists vehicles using `Vehicles[IO].list()` ✅
+- Joins previous and current result by vehicle `id`
+  - Because vehicles are not sorted and some might go missing
+- Calculate the distance using `Vehicle.distance` and the elapsed time
+- Build a map of `(Vehicle.LineName, Vehicle.Id) -> VehicleStats`
+  - Where `VehicleStats` are distance, time and avg speed
 
 ---
 
 # Step by step
 
-The next step - slide over data, take current and previous measurement and calculate the diff
+Slide over data, take current and previous measurement and calculate the diff
+
+---
+
+# Step by step
+
+Slide over data, take current and previous measurement and calculate the diff
 
 <!-- _class: line-numbers -->
 
@@ -892,7 +948,7 @@ def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] =
     .fixedRateStartImmediately[IO](interval)
     .evalMap(_ => vehicles.list())
     .sliding(2)
-    .map(chunk => calculateDiff(chunk(0), chunk(1))) // That needs explaining
+    .map(chunk => calculateDiff(chunk(0), chunk(1))) // basically calculate derivative
     // TBC
 ```
 
@@ -906,7 +962,6 @@ Our stream lists vehicles every `interval` and calculates a list of diffs
 - Acts on given time interval like every `N` seconds ✅
 - When the time comes - it lists vehicles using `Vehicles[IO].list()` ✅
 - Joins previous and current result by vehicle `id` ✅
-  - Because vehicles are not sorted and some might go missing
 - Calculate the distance using `Vehicle.distance` and the elapsed time ✅
 - Build a map of `(Vehicle.LineName, Vehicle.Id) -> VehicleStats`
   - Where `VehicleStats` are distance, time and avg speed
@@ -931,25 +986,62 @@ def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] =
     .sliding(2)
     .map(chunk => calculateDiff(chunk(0), chunk(1)))
     .take(numberOfSamples)
-    .fold(Map[(Vehicle.LineName, Vehicle.Id), VehicleStats]()){ case (previousSummary, listOfDiffs) =>
-      val currentDiffSummary = 
-        listOfDiffs
-          .groupBy(d => (d.line, d.id))
-          .view
-          .mapValues(_.head)
-          .mapValues(diff => VehicleStats(diff.metersDistance, diff.secondsDuration) )
-          .toMap
-      Monoid.combine(previousSummary, currentDiffSummary)
-    }
+    .fold(Map.empty)(summarize) // 👈 `summarize` needs explaining
     .compile
     .toList
     .map(_.head)
+```
+
+---
+
+<!-- _class: line-numbers -->
+
+# Summarize each step
+
+The `summarize` describes incremental step of building the summary
+
+```scala
+def summarize(
+  previousSummary: Map[(Vehicle.LineName, Vehicle.Id), VehicleStats],
+  nextDiff: Seq[VehiclePositionDiff]
+): Map[(LineName, Id), VehicleStats] = {
+  val currentSummary =
+    nextDiff
+      .groupMapReduce
+        (d => (d.line, d.id))
+        (diff => VehicleStats(diff.metersDistance, diff.secondsDuration))
+        ((a, b) => a)
+  Monoid.combine(previousSummary, currentSummary)
+}
 ```
 ---
 
 <!-- _class: line-numbers -->
 
-# Explanation
+# Summarize each step
+
+
+
+```scala
+def summarize(
+  previousSummary: Map[(Vehicle.LineName, Vehicle.Id), VehicleStats],
+  nextDiff: Seq[VehiclePositionDiff]
+): Map[(LineName, Id), VehicleStats] = {
+  val currentSummary =
+    nextDiff
+      .groupMapReduce
+        (d => (d.line, d.id)) // group by line and id
+        (diff => VehicleStats(diff.metersDistance, diff.secondsDuration)) // map to VehicleStats
+        ((a, b) => a)         // in case there were multiple results, takes first
+  Monoid.combine(previousSummary, currentSummary) // Magic 🌠
+}
+```
+
+---
+
+<!-- _class: line-numbers -->
+
+# Final stream
 
 ```scala
 def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] = 
@@ -959,16 +1051,7 @@ def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] =
     .sliding(2)
     .map(chunk => calculateDiff(chunk(0), chunk(1)))
     .take(numberOfSamples)
-    .fold(Map[(Vehicle.LineName, Vehicle.Id), VehicleStats]()){ case (previousSummary, listOfDiffs) =>
-      val currentDiffSummary = 
-        listOfDiffs                       // just a `Seq[VehiclePositionDiff]` so (line, id, distance, duration)
-          .groupBy(d => (d.line, d.id))   // group by line and id
-          .view
-          .mapValues(_.head)              // take head of (line, id) -> List[diff] since it's always single element
-          .mapValues(diff => VehicleStats(diff.metersDistance, diff.secondsDuration) ) // make the diff
-          .toMap                          // Render a proper Map[(line, id) -> VehicleStats]
-      Monoid.combine(previousSummary, currentDiffSummary) // Magic 🌠
-    }
+    .fold(Map.empty)(summarize)
     .compile
     .toList
     .map(_.head)
@@ -1031,6 +1114,14 @@ Results:
 (LineName(31),Id(22514740)) -> VehicleStats(distance = 295 m, duration = 56 s, avgSpeed = 18.977040274024887 km/h)
 Program finished
 ```
+
+---
+
+# Stats
+
+- Fastest: **30.3** km/h
+- Slowest: **1.2** km/h
+- Average: **15.7** km/h
 
 ---
 
@@ -1148,25 +1239,3 @@ This works for free
 ```scala
 Monoid.combine(previousSummary, currentDiffSummary) // combine previous stats with current one together
 ```
-
-
-<!-- 
-
-Agenda
-
-* Derailment
-* Is it really that bad? 
-* Data sources - open-data wroclaw
-* Failure with open data https://www.wroclaw.pl/open-data/dataset/lokalizacjapojazdowkomunikacjimiejskiejnatrasie_data
-* Interactive map https://mpk.wroc.pl/strefa-pasazera/zaplanuj-podroz/mapa-pozycji-pojazdow NO API!?
-* STTP  - let's download the data
-* Decode JSON
-* Internal model
-* Make sense of data
-* Monoid for the win - combine data for free
-* FS2 to gather some more data
-* Best and worst line
-* Future improvements - S3 to store data? More statistics
-* Summary 
-
--->

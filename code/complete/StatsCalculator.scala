@@ -33,6 +33,19 @@ object StatsCalculator {
           VehiclePositionDiff(v1.lineName, v1.id, secondDuration(v1.measuredAt, v2.measuredAt), v1.distance(v2))
       )
 
+  def summarize(
+    previousSummary: Map[(Vehicle.LineName, Vehicle.Id), VehicleStats],
+    nextDiff: Seq[VehiclePositionDiff]
+  ): Map[(LineName, Id), VehicleStats] = {
+    val currentSummary =
+      nextDiff
+        .groupMapReduce
+          (d => (d.line, d.id))
+          (diff => VehicleStats(diff.metersDistance, diff.secondsDuration))
+          ((a, b) => a)
+    Monoid.combine(previousSummary, currentSummary)
+  }
+
   def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] = 
     fs2.Stream
       .fixedRateStartImmediately[IO](interval)
@@ -42,16 +55,7 @@ object StatsCalculator {
       .sliding(2)
       .map(chunk => calculateDiff(chunk(0), chunk(1)))
       .take(numberOfSamples)
-      .fold(Map[(Vehicle.LineName, Vehicle.Id), VehicleStats]()){ case (summary, nextDiff) =>
-        val subSummary = 
-          nextDiff
-            .groupBy(d => (d.line, d.id))
-            .view
-            .mapValues(_.head)
-            .mapValues(diff => VehicleStats(diff.metersDistance, diff.secondsDuration) )
-            .toMap
-        Monoid.combine(summary, subSummary)
-      }
+      .fold(Map.empty)(summarize)
       .compile
       .toList
       .map(_.head)
