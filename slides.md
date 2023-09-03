@@ -809,6 +809,30 @@ val stream: Stream[IO, Int] =
 
 ---
 
+# Let's visualize it!
+
+---
+
+![bg 60%](./img/stream-timeline-first-api-call.png)
+
+---
+
+![bg 60%](./img/stream-timeline-two-api-calls.png)
+
+---
+
+![bg 60%](./img/stream-timeline-first-diff.png)
+
+---
+
+![bg 60%](./img/stream-timeline-after-first-diff.png)
+
+---
+
+![bg 60%](./img/stream-timeline-final.png)
+
+---
+
 # How to implement it
 
 We want to build a stream that:
