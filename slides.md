@@ -24,7 +24,7 @@ marp: true
 
 <!-- _class: divider -->
 
-# So trams in Wrocław
+# So, trams in Wrocław
 
 ---
 
@@ -117,9 +117,9 @@ https://mpk.wroc.pl/strefa-pasazera/zaplanuj-podroz/mapa-pozycji-pojazdow
 
 ![height:630px](./img/interactive-map.png)
 
----
+<!-- ---
 
-![bg height:90%](./img/api-docs-half.png)
+![bg height:90%](./img/api-docs-half.png) -->
 
 ---
 
@@ -591,7 +591,7 @@ new Vehicles[IO] {
         .map{ record =>                              // map each resulting row from MPK API
           Vehicle(                                   // and turn it into our `Vehicle` model
             lineName = Vehicle.LineName(record.name),
-            measuredAt = Instant.ofEpochMilli(now.toMillis),
+            measuredAt = Instant.ofEpochMilli(now.toMillis), // TODO - real time instant?
             position = Position(record.x, record.y),
             id = Vehicle.Id(record.k.toString)
           )
@@ -737,7 +737,7 @@ Short intro
 
 * Create an infinite stream of natural numbers `1, 2, 3, 4, 5, ...`
 * Keep only the odd ones `1, 3, 5, 7, ...`
-* Group them by 3 elements `(1, 3, 5), (7, 9, 11), ...`
+* Slide through by 3 elements `(1, 3, 5), (3, 5, 7), (5, 7, 9), ...`
 * Add each group `9, 15, 21, ...`
 * Take first `10`
 
@@ -1170,7 +1170,6 @@ Program finished
 # But we have learned something!
 
 * Data is not easy to find
-* Sttp and Circe play well together for HTTP APIs
 * Streams are not that hard
 * Smartly applied `Monoid` can save you some code
 
