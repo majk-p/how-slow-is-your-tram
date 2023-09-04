@@ -51,7 +51,6 @@ Let's find out
 3) Fetch some more
 4) Calculate diffs
 5) Produce statistics
-6) Profit
 
 ---
 
@@ -201,7 +200,6 @@ curl -s 'https://mpk.wroc.pl/bus_position' \
 3. Fetch some more
 4. Calculate diffs
 5. Produce statistics
-6. Profit
 
 ---
 
@@ -404,7 +402,6 @@ We're back on track
 3. Fetch some more
 4. Calculate diffs
 5. Produce statistics
-6. Profit
 
 ---
 
@@ -700,7 +697,6 @@ measurement1.distance(measurement2) // like this
 3. Fetch some more 🛠️
 4. Calculate diffs 🛠️
 5. Produce statistics
-6. Profit
 
 ---
 
@@ -1028,28 +1024,6 @@ def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] =
 # Summarize each step
 
 The `summarize` describes incremental step of building the summary
-
-```scala
-def summarize(
-  previousSummary: Map[(Vehicle.LineName, Vehicle.Id), VehicleStats],
-  nextDiff: Seq[VehiclePositionDiff]
-): Map[(LineName, Id), VehicleStats] = {
-  val currentSummary =
-    nextDiff
-      .groupMapReduce
-        (d => (d.line, d.id))
-        (diff => VehicleStats(diff.metersDistance, diff.secondsDuration))
-        ((a, b) => a)
-  Monoid.combine(previousSummary, currentSummary)
-}
-```
----
-
-<!-- _class: line-numbers -->
-
-# Summarize each step
-
-
 
 ```scala
 def summarize(

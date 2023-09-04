@@ -115,3 +115,7 @@ section.line-numbers pre ol li span[data-marp-line-number]::before {
   text-align: right;
   color: #999;
 }
+
+section.line-numbers pre ol li span[data-marp-line-number] {
+  padding-bottom: 0.17em;
+}
