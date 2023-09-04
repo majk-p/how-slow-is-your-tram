@@ -479,14 +479,12 @@ trait MpkWrocApiClient[F[_]] {
 }
 
 object MpkWrocApiClient {
-  def apply[F[_]](using ev: MpkWrocApiClient[F]): MpkWrocApiClient[F] = ev
 
   def instance(backend: SttpBackend[IO, Any])(buses: List[String], trams: List[String]): MpkWrocApiClient[IO] = 
     new MpkWrocApiClient[IO] {
-      def vehicles(): IO[Seq[MpkWrocApiClient.Record]] =  ???
-        // call the request() method
+      def vehicles(): IO[Seq[MpkWrocApiClient.Record]] = ???
+        // Same as `request` method
     }
-
 }
 ```
 
@@ -681,6 +679,8 @@ val measurement2: Vehicle = ???
 
 measurement1.distance(measurement2) // like this
 ```
+
+###### It calculates [Geographical Distance](https://en.wikipedia.org/wiki/Euclidean_distance) but [Euclidean Distance](https://en.wikipedia.org/wiki/Euclidean_distance) would be good enough
 
 ---
 
@@ -891,6 +891,8 @@ Easy right?
 # Step by step
 
 Slide over data, take current and previous measurement and calculate the diff
+
+![](https://media.tenor.com/Bes3SdBqqBMAAAAC/hold-up-umm.gif)
 
 ---
 
