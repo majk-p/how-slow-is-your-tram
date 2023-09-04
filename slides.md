@@ -584,18 +584,15 @@ trait Vehicles[F[_]] {
 new Vehicles[IO] {
   def list(): IO[Seq[Vehicle]] = 
     for {
-      now <- IO.realTime                             // Get the time of measurement
-      records <- client.vehicles()                   // Use the client to list vehicle positions
-    } yield {
-      records
-        .map{ record =>                              // map each resulting row from MPK API
-          Vehicle(                                   // and turn it into our `Vehicle` model
-            lineName = Vehicle.LineName(record.name),
-            measuredAt = Instant.ofEpochMilli(now.toMillis), // TODO - real time instant?
-            position = Position(record.x, record.y),
-            id = Vehicle.Id(record.k.toString)
-          )
-        }
+      now <- IO.realTimeInstant                  // Get the time of measurement
+      records <- client.vehicles()               // Use the client to list vehicle positions
+    } yield records.map{ record =>               // map each resulting row from MPK API
+      Vehicle(                                   // and turn it into our `Vehicle` model
+        lineName = Vehicle.LineName(record.name),
+        measuredAt = now,
+        position = Position(record.x, record.y),
+        id = Vehicle.Id(record.k.toString)
+      )
     }
 }
 ```
@@ -813,17 +810,25 @@ val stream: Stream[IO, Int] =
 
 ---
 
+<!-- _transition: none -->
+
 ![bg 60%](./img/stream-timeline-first-api-call.png)
 
 ---
+
+<!-- _transition: none -->
 
 ![bg 60%](./img/stream-timeline-two-api-calls.png)
 
 ---
 
+<!-- _transition: none -->
+
 ![bg 60%](./img/stream-timeline-first-diff.png)
 
 ---
+
+<!-- _transition: none -->
 
 ![bg 60%](./img/stream-timeline-after-first-diff.png)
 
@@ -1094,16 +1099,22 @@ object Main extends IOApp.Simple {
       .resource[IO]()
       .use(backend => program(backend) *> IO.println("Program finished"))
 
-  private val trams = List("8", "16", "18", "20", "31", "33")
-  private val buses = List("110", "124", "145", "149")
+  private val trams = List("8", "16", "18", "20", "21", "22")
+  private val buses = List("124", "145", "149")
 
   def program(backend: SttpBackend[IO, Any]) = for {
-    _ <- IO.println("Initializing client")
     client = MpkWrocApiClient.instance(backend)(buses, trams)
     vehicles = Vehicles.mpkApiAdapter(client)
     stats <- StatsCalculator.stats(vehicles)
-    _ <- IO.println("Results:")
     _ <- IO.println(stats.mkString("\n"))
+    aggregate = StatsCalculator.aggregateLines(stats)
+    _ <- IO.println(aggregate.mkString("\n"))
+    fastest = aggregate.maxBy((line, stats) => stats.avgSpeedKMH)
+    slowest = aggregate.minBy((line, stats) => stats.avgSpeedKMH)
+    avg = aggregate.values.map(_.avgSpeedKMH).reduce((a, b) => (a + b) / 2)
+    _ <- IO.println(s"Fastest: $fastest")
+    _ <- IO.println(s"Slowest: $slowest")
+    _ <- IO.println(s"Average: $avg")
   } yield ()
 
 }
@@ -1113,39 +1124,70 @@ object Main extends IOApp.Simple {
 
 # Results
 
-Captured at 19.08.2023 23:59
+Captured at 04.09.2023 23:39
+
+Parameters
+```scala
+val interval = 7.seconds
+val numberOfSamples = 36
+```
+
+---
+
+# Results
+
+Raw results
 
 ```scala
 $ scala-cli main.scala
 Compiling project (Scala 3.3.0, JVM)
 Compiled project (Scala 3.3.0, JVM)
-Initializing client
-Results:
-(LineName(8),Id(22516252)) -> VehicleStats(distance = 314 m, duration = 56 s, avgSpeed = 20.213189082553846 km/h)
-(LineName(20),Id(22515917)) -> VehicleStats(distance = 443 m, duration = 56 s, avgSpeed = 28.5119529250625 km/h)
-(LineName(20),Id(22515179)) -> VehicleStats(distance = 40 m, duration = 56 s, avgSpeed = 2.5404996160117994 km/h)
-(LineName(18),Id(22514827)) -> VehicleStats(distance = 147 m, duration = 56 s, avgSpeed = 9.422170260015774 km/h)
-(LineName(31),Id(22515449)) -> VehicleStats(distance = 236 m, duration = 56 s, avgSpeed = 15.154027356445154 km/h)
-(LineName(20),Id(22515337)) -> VehicleStats(distance = 277 m, duration = 56 s, avgSpeed = 17.81978845252574 km/h)
-(LineName(33),Id(22515611)) -> VehicleStats(distance = 19 m, duration = 56 s, avgSpeed = 1.2391629631487628 km/h)
-(LineName(8),Id(22516472)) -> VehicleStats(distance = 85 m, duration = 56 s, avgSpeed = 5.445973045490719 km/h)
-(LineName(33),Id(22515654)) -> VehicleStats(distance = 46 m, duration = 56 s, avgSpeed = 2.9398921547170436 km/h)
-(LineName(31),Id(22515530)) -> VehicleStats(distance = 390 m, duration = 56 s, avgSpeed = 25.099798011115187 km/h)
-(LineName(31),Id(22514759)) -> VehicleStats(distance = 142 m, duration = 56 s, avgSpeed = 9.139924459411425 km/h)
-(LineName(145),Id(22325620)) -> VehicleStats(distance = 438 m, duration = 56 s, avgSpeed = 28.168021843769804 km/h)
-(LineName(8),Id(22516229)) -> VehicleStats(distance = 76 m, duration = 56 s, avgSpeed = 4.893826680968721 km/h)
-(LineName(31),Id(22515483)) -> VehicleStats(distance = 471 m, duration = 56 s, avgSpeed = 30.27673252637013 km/h)
-(LineName(31),Id(22514740)) -> VehicleStats(distance = 295 m, duration = 56 s, avgSpeed = 18.977040274024887 km/h)
-Program finished
+(LineName(21),Id(22695998)) -> VehicleStats(distance = 2074 m, duration = 252 s, avgSpeed = 29.63472390144106 km/h)
+(LineName(21),Id(22695885)) -> VehicleStats(distance = 1609 m, duration = 252 s, avgSpeed = 22.982768929443804 km/h)
+(LineName(21),Id(22695942)) -> VehicleStats(distance = 1356 m, duration = 252 s, avgSpeed = 19.373028000391045 km/h)
+(LineName(18),Id(22695979)) -> VehicleStats(distance = 1 m, duration = 35 s, avgSpeed = 0.136151212444324 km/h)
+(LineName(21),Id(22695922)) -> VehicleStats(distance = 1387 m, duration = 252 s, avgSpeed = 19.813662270031806 km/h)
+(LineName(22),Id(22696493)) -> VehicleStats(distance = 1539 m, duration = 252 s, avgSpeed = 21.984717281755096 km/h)
+(LineName(22),Id(22697780)) -> VehicleStats(distance = 181 m, duration = 252 s, avgSpeed = 2.581966471764068 km/h)
+(LineName(8),Id(22696406)) -> VehicleStats(distance = 505 m, duration = 252 s, avgSpeed = 7.217235512930151 km/h)
+(LineName(18),Id(22696116)) -> VehicleStats(distance = 1243 m, duration = 252 s, avgSpeed = 17.764491579534205 km/h)
+(LineName(22),Id(22695603)) -> VehicleStats(distance = 1209 m, duration = 252 s, avgSpeed = 17.273338030516843 km/h)
+(LineName(18),Id(22695903)) -> VehicleStats(distance = 212 m, duration = 252 s, avgSpeed = 3.0280796940046133 km/h)
+(LineName(145),Id(22586760)) -> VehicleStats(distance = 967 m, duration = 112 s, avgSpeed = 31.093421187834643 km/h)
+(LineName(16),Id(22696435)) -> VehicleStats(distance = 171 m, duration = 63 s, avgSpeed = 9.767713670051126 km/h)
+(LineName(8),Id(22696537)) -> VehicleStats(distance = 644 m, duration = 252 s, avgSpeed = 9.193644649524856 km/h)
+(LineName(21),Id(22696017)) -> VehicleStats(distance = 1497 m, duration = 252 s, avgSpeed = 21.390973471679338 km/h)
+(LineName(8),Id(22695500)) -> VehicleStats(distance = 898 m, duration = 252 s, avgSpeed = 12.82504407110847 km/h)
+(LineName(21),Id(22696147)) -> VehicleStats(distance = 1684 m, duration = 252 s, avgSpeed = 24.064242994640583 km/h)
+(LineName(21),Id(22696365)) -> VehicleStats(distance = 1129 m, duration = 245 s, avgSpeed = 16.588785886487624 km/h)
+(LineName(21),Id(22696035)) -> VehicleStats(distance = 757 m, duration = 126 s, avgSpeed = 21.640636655048514 km/h)
+// TBC ...
 ```
+---
+
+# Results
+
+Aggregate
+
+```scala
+LineName(8) -> VehicleStats(distance = 2046 m, duration = 756 s, avgSpeed = 9.745308077854492 km/h)
+LineName(22) -> VehicleStats(distance = 2929 m, duration = 756 s, avgSpeed = 13.946673928012004 km/h)
+LineName(16) -> VehicleStats(distance = 171 m, duration = 63 s, avgSpeed = 9.767713670051126 km/h)
+LineName(21) -> VehicleStats(distance = 11494 m, duration = 1883 s, avgSpeed = 21.97575087707786 km/h)
+LineName(145) -> VehicleStats(distance = 967 m, duration = 112 s, avgSpeed = 31.093421187834643 km/h)
+LineName(18) -> VehicleStats(distance = 1457 m, duration = 539 s, avgSpeed = 9.730036219413718 km/h)
+```
+
 
 ---
 
-# Stats
+# Stats 📉
 
-- Fastest: **30.3** km/h
-- Slowest: **1.2** km/h
-- Average: **15.7** km/h
+- Fastest: **31.1** km/h - line `145` (bus)
+- Slowest: **9.7** km/h - line `18`
+- Average: **16.0** km/h
+
+![bg right:40% 100%](./img/not-stonks.png)
 
 ---
 
@@ -1167,11 +1209,12 @@ Program finished
 
 ---
 
-# But we have learned something!
+# But we have learned something! 📖
 
 * Data is not easy to find
 * Streams are not that hard
 * Smartly applied `Monoid` can save you some code
+* Bike can save you some time
 
 ---
 

@@ -25,8 +25,8 @@ object Main extends IOApp.Simple {
       .resource[IO]()
       .use(backend => program(backend) *> IO.println("Program finished"))
 
-  private val trams = List("8", "16", "18", "20", "31", "33")
-  private val buses = List("110", "124", "145", "149")
+  private val trams = List("8", "16", "18", "20", "21", "22")
+  private val buses = List("124", "145", "149")
 
 
   def program(backend: SttpBackend[IO, Any]) = for {
@@ -39,6 +39,12 @@ object Main extends IOApp.Simple {
     aggregate = StatsCalculator.aggregateLines(stats)
     _ <- IO.println("="*90)
     _ <- IO.println(aggregate.mkString("\n"))
+    fastest = aggregate.maxBy((line, stats) => stats.avgSpeedKMH)
+    slowest = aggregate.minBy((line, stats) => stats.avgSpeedKMH)
+    avg = aggregate.values.map(_.avgSpeedKMH).reduce((a, b) => (a + b) / 2)
+    _ <- IO.println(s"Fastest: $fastest")
+    _ <- IO.println(s"Slowest: $slowest")
+    _ <- IO.println(s"Average: $avg")
   } yield ()
 
 

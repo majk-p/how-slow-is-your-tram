@@ -26,14 +26,14 @@ object Vehicles {
     new Vehicles[IO] {
       def list(): IO[Seq[Vehicle]] = 
         for {
-          now <- IO.realTime
+          now <- IO.realTimeInstant
           records <- client.vehicles()
         } yield {
           records
             .map{  record => 
               Vehicle(
                 lineName = Vehicle.LineName(record.name),
-                measuredAt = Instant.ofEpochMilli(now.toMillis),
+                measuredAt = now,
                 position = Position(record.x, record.y),
                 id = Vehicle.Id(record.k.toString)
               )
