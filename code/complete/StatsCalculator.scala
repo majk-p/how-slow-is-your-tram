@@ -11,8 +11,8 @@ import cats.syntax.group
 
 object StatsCalculator {
 
-  val interval = 7.seconds
-  val numberOfSamples = 36
+  val interval = 9.seconds
+  val numberOfSamples = 72
 
   case class VehiclePositionDiff(line: Vehicle.LineName, id: Vehicle.Id, secondsDuration: Double, metersDistance: Double)
 

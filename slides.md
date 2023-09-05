@@ -1100,12 +1100,12 @@ object Main extends IOApp.Simple {
 
 # Results
 
-Captured at 04.09.2023 23:39
+Captured at 05.09.2023 08:55
 
 Parameters
 ```scala
-val interval = 7.seconds
-val numberOfSamples = 36
+val interval = 9.seconds
+val numberOfSamples = 72
 ```
 
 ---
@@ -1118,26 +1118,37 @@ Raw results
 $ scala-cli main.scala
 Compiling project (Scala 3.3.0, JVM)
 Compiled project (Scala 3.3.0, JVM)
-(LineName(21),Id(22695998)) -> VehicleStats(distance = 2074 m, duration = 252 s, avgSpeed = 29.63472390144106 km/h)
-(LineName(21),Id(22695885)) -> VehicleStats(distance = 1609 m, duration = 252 s, avgSpeed = 22.982768929443804 km/h)
-(LineName(21),Id(22695942)) -> VehicleStats(distance = 1356 m, duration = 252 s, avgSpeed = 19.373028000391045 km/h)
-(LineName(18),Id(22695979)) -> VehicleStats(distance = 1 m, duration = 35 s, avgSpeed = 0.136151212444324 km/h)
-(LineName(21),Id(22695922)) -> VehicleStats(distance = 1387 m, duration = 252 s, avgSpeed = 19.813662270031806 km/h)
-(LineName(22),Id(22696493)) -> VehicleStats(distance = 1539 m, duration = 252 s, avgSpeed = 21.984717281755096 km/h)
-(LineName(22),Id(22697780)) -> VehicleStats(distance = 181 m, duration = 252 s, avgSpeed = 2.581966471764068 km/h)
-(LineName(8),Id(22696406)) -> VehicleStats(distance = 505 m, duration = 252 s, avgSpeed = 7.217235512930151 km/h)
-(LineName(18),Id(22696116)) -> VehicleStats(distance = 1243 m, duration = 252 s, avgSpeed = 17.764491579534205 km/h)
-(LineName(22),Id(22695603)) -> VehicleStats(distance = 1209 m, duration = 252 s, avgSpeed = 17.273338030516843 km/h)
-(LineName(18),Id(22695903)) -> VehicleStats(distance = 212 m, duration = 252 s, avgSpeed = 3.0280796940046133 km/h)
-(LineName(145),Id(22586760)) -> VehicleStats(distance = 967 m, duration = 112 s, avgSpeed = 31.093421187834643 km/h)
-(LineName(16),Id(22696435)) -> VehicleStats(distance = 171 m, duration = 63 s, avgSpeed = 9.767713670051126 km/h)
-(LineName(8),Id(22696537)) -> VehicleStats(distance = 644 m, duration = 252 s, avgSpeed = 9.193644649524856 km/h)
-(LineName(21),Id(22696017)) -> VehicleStats(distance = 1497 m, duration = 252 s, avgSpeed = 21.390973471679338 km/h)
-(LineName(8),Id(22695500)) -> VehicleStats(distance = 898 m, duration = 252 s, avgSpeed = 12.82504407110847 km/h)
-(LineName(21),Id(22696147)) -> VehicleStats(distance = 1684 m, duration = 252 s, avgSpeed = 24.064242994640583 km/h)
-(LineName(21),Id(22696365)) -> VehicleStats(distance = 1129 m, duration = 245 s, avgSpeed = 16.588785886487624 km/h)
-(LineName(21),Id(22696035)) -> VehicleStats(distance = 757 m, duration = 126 s, avgSpeed = 21.640636655048514 km/h)
-// TBC ...
+(LineName(22),Id(22695460)) -> VehicleStats(distance = 3919 m, duration = 648 s, avgSpeed = 21.77255912367109 km/h)
+(LineName(145),Id(22586856)) -> VehicleStats(distance = 739 m, duration = 126 s, avgSpeed = 21.122011131387406 km/h) 
+(LineName(145),Id(22586857)) -> VehicleStats(distance = 2234 m, duration = 495 s, avgSpeed = 16.248122084766138 km/h)
+(LineName(21),Id(22696333)) -> VehicleStats(distance = 3193 m, duration = 648 s, avgSpeed = 17.73752484183318 km/h)
+(LineName(18),Id(22696041)) -> VehicleStats(distance = 1540 m, duration = 648 s, avgSpeed = 8.555832904315897 km/h) 
+(LineName(22),Id(22695482)) -> VehicleStats(distance = 0 m, duration = 18 s, avgSpeed = 0.0 km/h)                    
+(LineName(8),Id(22696541)) -> VehicleStats(distance = 2184 m, duration = 648 s, avgSpeed = 12.132485872335115 km/h) 
+(LineName(16),Id(22696499)) -> VehicleStats(distance = 47 m, duration = 207 s, avgSpeed = 0.817474989663128 km/h)  
+(LineName(8),Id(22695483)) -> VehicleStats(distance = 450 m, duration = 351 s, avgSpeed = 4.610678940634453 km/h)   
+(LineName(16),Id(22696372)) -> VehicleStats(distance = 296 m, duration = 594 s, avgSpeed = 1.792706196897714 km/h)   
+(LineName(21),Id(22696103)) -> VehicleStats(distance = 2418 m, duration = 648 s, avgSpeed = 13.434871805600434 km/h)
+(LineName(18),Id(22695928)) -> VehicleStats(distance = 2273 m, duration = 648 s, avgSpeed = 12.626370686549246 km/h)
+(LineName(21),Id(22696071)) -> VehicleStats(distance = 2376 m, duration = 648 s, avgSpeed = 13.198798955281166 km/h)
+(LineName(18),Id(22696086)) -> VehicleStats(distance = 3825 m, duration = 648 s, avgSpeed = 21.24999578241602 km/h)  
+(LineName(8),Id(22696520)) -> VehicleStats(distance = 621 m, duration = 648 s, avgSpeed = 3.4475768495404635 km/h) 
+(LineName(18),Id(22696347)) -> VehicleStats(distance = 2632 m, duration = 648 s, avgSpeed = 14.622727466844548 km/h)
+(LineName(18),Id(22695908)) -> VehicleStats(distance = 1414 m, duration = 315 s, avgSpeed = 16.16467742050453 km/h)
+(LineName(145),Id(22586746)) -> VehicleStats(distance = 2300 m, duration = 387 s, avgSpeed = 21.39539415200732 km/h)
+(LineName(21),Id(22696022)) -> VehicleStats(distance = 1780 m, duration = 648 s, avgSpeed = 9.889907036709332 km/h)
+(LineName(18),Id(22695842)) -> VehicleStats(distance = 2863 m, duration = 648 s, avgSpeed = 15.90794010400161 km/h)
+(LineName(145),Id(22586800)) -> VehicleStats(distance = 3468 m, duration = 648 s, avgSpeed = 19.2690822332545 km/h)
+(LineName(21),Id(22696003)) -> VehicleStats(distance = 1611 m, duration = 648 s, avgSpeed = 8.948502029544693 km/h)
+(LineName(8),Id(22696500)) -> VehicleStats(distance = 0 m, duration = 45 s, avgSpeed = 0.0 km/h)       
+(LineName(8),Id(22696371)) -> VehicleStats(distance = 145 m, duration = 27 s, avgSpeed = 19.30136010668995 km/h)
+(LineName(18),Id(22695857)) -> VehicleStats(distance = 0 m, duration = 207 s, avgSpeed = 0.0 km/h)             
+(LineName(8),Id(22699335)) -> VehicleStats(distance = 1330 m, duration = 648 s, avgSpeed = 7.387016996416382 km/h)
+(LineName(18),Id(22696057)) -> VehicleStats(distance = 770 m, duration = 423 s, avgSpeed = 6.554339292764373 km/h)
+(LineName(16),Id(22697696)) -> VehicleStats(distance = 2419 m, duration = 648 s, avgSpeed = 13.439411970086935 km/h)
+(LineName(124),Id(22675475)) -> VehicleStats(distance = 1314 m, duration = 648 s, avgSpeed = 7.302029977487313 km/h)
+(LineName(21),Id(22695984)) -> VehicleStats(distance = 2304 m, duration = 648 s, avgSpeed = 12.801481111234681 km/h)
+// ...
 ```
 ---
 
@@ -1146,12 +1157,14 @@ Compiled project (Scala 3.3.0, JVM)
 Aggregate
 
 ```scala
-LineName(8) -> VehicleStats(distance = 2046 m, duration = 756 s, avgSpeed = 9.745308077854492 km/h)
-LineName(22) -> VehicleStats(distance = 2929 m, duration = 756 s, avgSpeed = 13.946673928012004 km/h)
-LineName(16) -> VehicleStats(distance = 171 m, duration = 63 s, avgSpeed = 9.767713670051126 km/h)
-LineName(21) -> VehicleStats(distance = 11494 m, duration = 1883 s, avgSpeed = 21.97575087707786 km/h)
-LineName(145) -> VehicleStats(distance = 967 m, duration = 112 s, avgSpeed = 31.093421187834643 km/h)
-LineName(18) -> VehicleStats(distance = 1457 m, duration = 539 s, avgSpeed = 9.730036219413718 km/h)
+LineName(22) -> VehicleStats(distance = 19127 m, duration = 4572 s, avgSpeed = 15.060665307794535 km/h)
+LineName(16) -> VehicleStats(distance = 16360 m, duration = 5049 s, avgSpeed = 11.664853832122114 km/h)
+LineName(21) -> VehicleStats(distance = 20526 m, duration = 5319 s, avgSpeed = 13.892783846488033 km/h)
+LineName(145) -> VehicleStats(distance = 17318 m, duration = 3600 s, avgSpeed = 17.31835235672147 km/h)
+LineName(149) -> VehicleStats(distance = 815 m, duration = 459 s, avgSpeed = 6.395473232361093 km/h)
+LineName(18) -> VehicleStats(distance = 22863 m, duration = 6507 s, avgSpeed = 12.64896296592901 km/h)
+LineName(124) -> VehicleStats(distance = 15596 m, duration = 3600 s, avgSpeed = 15.59662045634935 km/h)
+LineName(8) -> VehicleStats(distance = 8850 m, duration = 3663 s, avgSpeed = 8.697846722967476 km/h)
 ```
 
 
@@ -1159,9 +1172,13 @@ LineName(18) -> VehicleStats(distance = 1457 m, duration = 539 s, avgSpeed = 9.7
 
 # Stats 📉
 
-- Fastest: **31.1** km/h - line `145` (bus)
-- Slowest: **9.7** km/h - line `18`
-- Average: **16.0** km/h
+* Buses 🚌
+  * Fastest: **17.3** km/h - line `145`
+  * Slowest: **6.4** km/h - line `149`
+* Trams 🚊
+  * Fastest: **15.1** km/h - line `22`
+  * Slowest: **8.7** km/h - line `8`
+* Average: **11.2** km/h
 
 ![bg right:40% 100%](./img/not-stonks.png)
 
@@ -1179,7 +1196,7 @@ LineName(18) -> VehicleStats(distance = 1457 m, duration = 539 s, avgSpeed = 9.7
 
 <!-- _class: divider yellow-background -->
 
-### How slow is your tram? :tram:
+#### How slow is your tram? :tram:
 
 # Too slow!
 
