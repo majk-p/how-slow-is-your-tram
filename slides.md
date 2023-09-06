@@ -22,6 +22,16 @@ marp: true
 
 ---
 
+# I wanted to show how to enter the venue
+
+---
+
+# Good start
+
+![bg right:65% 100%](./img/pub-entrance.png)
+
+---
+
 <!-- _class: divider -->
 
 # So, trams in Wrocław
@@ -715,7 +725,6 @@ measurement1.distance(measurement2) // like this
 * Represent sequences of data elements
 * Can be finite or infinite, synchronous or asynchronous
 * Offer operations for transforming, filtering, and aggregating data
-* Declarative and lazy approach to data processing
 
 
 ---
