@@ -1,44 +1,39 @@
-//> using dep "com.softwaremill.sttp.client3::fs2:3.8.16"
-//> using dep "com.softwaremill.sttp.client3::circe:3.8.16"
-//> using dep "com.softwaremill.sttp.client3::core:3.8.16"
 //> using toolkit typelevel:latest
+//> using dep "com.softwaremill.sttp.client3::fs2:3.9.1"
+//> using dep "com.softwaremill.sttp.client3::circe:3.9.1"
+//> using dep "com.softwaremill.sttp.client3::core:3.9.1"
 //> using file "WroclawOpenDataClient.scala"
-//> using file "MpkWrocApiClient.scala"
 //> using file "Vehicles.scala"
 //> using file "StatsCalculator.scala"
 
-import Vehicles.Vehicle
 import cats.effect.*
 import cats.implicits.given
+import cats.kernel.Monoid
 import sttp.client3.*
 import sttp.client3.circe.*
-import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 
 import java.time.Instant
 import scala.concurrent.duration.*
-import cats.kernel.Monoid
-
 
 object Main extends IOApp.Simple {
-  def run = 
-    HttpClientFs2Backend
-      .resource[IO]()
+  def run =
+    http.backend
       .use(backend => program(backend) *> IO.println("Program finished"))
 
-  private val trams = List("8", "16", "18", "20", "21", "22")
-  private val buses = List("124", "145", "149")
-
+  val trams = List("8", "16", "18", "20", "21", "22")
+  val buses = List("124", "145", "149")
+  val interval = 9.seconds
+  val numberOfSamples = 5
 
   def program(backend: SttpBackend[IO, Any]) = for {
     _ <- IO.println("Initializing client")
-    client = MpkWrocApiClient.instance(backend)(buses, trams)
-    vehicles = Vehicles.mpkApiAdapter(client)
-    rawStats <- StatsCalculator.stats(vehicles)
+    vehicles = Vehicles.mpkWrocInstance(backend, buses, trams)
+    rawStats <- StatsCalculator.stats(vehicles)(interval, numberOfSamples)
     stats = rawStats.filterNot((_, stats) => stats.avgSpeedKMH > 80)
-    _ <- IO.println("-"*90)
+    _ <- IO.println("-" * 90)
     _ <- IO.println(stats.mkString("\n"))
     aggregate = StatsCalculator.aggregateLines(stats)
-    _ <- IO.println("="*90)
+    _ <- IO.println("=" * 90)
     _ <- IO.println(aggregate.mkString("\n"))
     fastest = aggregate.maxBy((line, stats) => stats.avgSpeedKMH)
     slowest = aggregate.minBy((line, stats) => stats.avgSpeedKMH)
@@ -47,6 +42,5 @@ object Main extends IOApp.Simple {
     _ <- IO.println(s"Slowest: $slowest")
     _ <- IO.println(s"Average: $avg")
   } yield ()
-
 
 }

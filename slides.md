@@ -263,8 +263,9 @@ val apiUri = uri"https://mpk.wroc.pl/bus_position"
 val trams = List("31", "33")
 val buses = List("110")
 
-def payload(buses: List[String], trams: List[String]) = 
-  (trams.map(v => s"busList[tram][]=$v") ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
+def payload(buses: List[String], trams: List[String]) =
+  (trams.map(v => s"busList[tram][]=$v") ++
+    buses.map(v => s"busList[bus][]=$v")).mkString("&")
 
 // ☝️ builds this thing: busList[bus][]=110&busList[tram][]=31&busList[tram][]=33
 ```
@@ -281,8 +282,9 @@ val apiUri = uri"https://mpk.wroc.pl/bus_position"
 val trams = List("31", "33")
 val buses = List("110")
 
-def payload(buses: List[String], trams: List[String]) = 
-  (trams.map(v => s"busList[tram][]=$v") ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
+def payload(buses: List[String], trams: List[String]) =
+  (trams.map(v => s"busList[tram][]=$v") ++
+    buses.map(v => s"busList[bus][]=$v")).mkString("&")
 
 def request(backend: SttpBackend[IO, Any]) = 
   basicRequest
@@ -306,8 +308,9 @@ val apiUri = uri"https://mpk.wroc.pl/bus_position"
 val trams = List("31", "33")
 val buses = List("110")
 
-def payload(buses: List[String], trams: List[String]) = 
-  (trams.map(v => s"busList[tram][]=$v") ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
+def payload(buses: List[String], trams: List[String]) =
+  (trams.map(v => s"busList[tram][]=$v") ++
+    buses.map(v => s"busList[bus][]=$v")).mkString("&")
 
 case class Record(
   name: String,
@@ -431,92 +434,7 @@ Let's decouple before we move on.
 
 # Refactoring time! 🚧
 
-First step: hide the API behind an interface
-
-```scala
-trait MpkWrocApiClient[F[_]] {
-  def vehicles(): F[Seq[MpkWrocApiClient.Record]]
-}
-```
-
----
-
-# Refactoring time! 🚧
-
-<!-- _class: line-numbers -->
-
-Our existing code
-
-```scala
-val apiUri = uri"https://mpk.wroc.pl/bus_position"
-val trams = List("31", "33")
-val buses = List("110")
-
-def payload(buses: List[String], trams: List[String]) = 
-  (trams.map(v => s"busList[tram][]=$v") ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
-
-case class Record(
-  name: String,
-  x: Double,
-  y: Double,
-  k: Int
-) derives Codec.AsObject      // This means the compiler will generate JSON Encoder and Decoder 
-
-def request(backend: SttpBackend[IO, Any]): IO[List[Record]] = // Note the return type
-  basicRequest
-    .post(apiUri)
-    .body(payload(buses, trams)) // Something like busList[bus][]=110&busList[tram][]=31&busList[tram][]=33
-    .contentType(MediaType.ApplicationXWwwFormUrlencoded)
-    .response(asJson[List[Record]])
-    .send(backend)
-    .map(_.body)                 // We are only interested in the result
-    .rethrow                     // Fail `IO` on all errors, we are being simple here
-```
-
----
-
-# Refactoring time! 🚧
-
-<!-- _class: line-numbers -->
-
-Just wrap the `request` method
-
-```scala
-trait MpkWrocApiClient[F[_]] {
-  def vehicles(): F[Seq[MpkWrocApiClient.Record]]
-  
-  // 👆 each time we call this, we receive latest data from API
-}
-
-object MpkWrocApiClient {
-
-  def instance(backend: SttpBackend[IO, Any])(buses: List[String], trams: List[String]): MpkWrocApiClient[IO] = 
-    new MpkWrocApiClient[IO] {
-      def vehicles(): IO[Seq[MpkWrocApiClient.Record]] = ???
-        // Same as `request` method
-    }
-}
-```
-
----
-
-# Refactoring time! 🚧
-
-First step done ✅
-
-```scala
-trait MpkWrocApiClient[F[_]] {
-  def vehicles(): F[Seq[MpkWrocApiClient.Record]]
-}
-```
-
-We no longer have to care how the data is fetched!
-
----
-
-# Generic API
-
-Let's have our own data model and hide the implementation details
+Let's hide the API behind an interface
 
 ```scala
 trait Vehicles[F[_]] {
@@ -556,14 +474,74 @@ case class Vehicle(
   position: Position,
   id: Vehicle.Id
 )
-```
 
-```scala
 case class Position(latitude: Double, longitude: Double)
 
 object Vehicle {
   case class Id(value: String) extends AnyVal
   case class LineName(value: String) extends AnyVal
+}
+```
+
+---
+
+
+# Refactoring time! 🚧
+
+<!-- _class: line-numbers -->
+
+Our existing code
+
+```scala
+val apiUri = uri"https://mpk.wroc.pl/bus_position"
+val trams = List("31", "33")
+val buses = List("110")
+
+def payload(buses: List[String], trams: List[String]) = 
+  (trams.map(v => s"busList[tram][]=$v") 
+    ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
+
+case class Record(
+  name: String,
+  x: Double,
+  y: Double,
+  k: Int
+) derives Codec.AsObject      // This means the compiler will generate JSON Encoder and Decoder 
+
+def request(backend: SttpBackend[IO, Any]): IO[List[Record]] = // Note the return type
+  basicRequest
+    .post(apiUri)
+    .body(payload(buses, trams)) // Something like busList[bus][]=110&busList[tram][]=31&busList[tram][]=33
+    .contentType(MediaType.ApplicationXWwwFormUrlencoded)
+    .response(asJson[List[Record]])
+    .send(backend)
+    .map(_.body)                 // We are only interested in the result
+    .rethrow                     // Fail `IO` on all errors, we are being simple here
+```
+
+---
+
+# Refactoring time! 🚧
+
+<!-- _class: line-numbers -->
+
+Just wrap the `request` method
+
+```scala
+trait Vehicles[F[_]] {
+  def list(): F[Seq[Vehicle]]
+  // 👆 each time we call this, we receive latest data from API
+}
+
+object Vehicles {
+
+  def mpkWrocInstance(
+      backend: SttpBackend[IO, Any],
+      buses: List[String],
+      trams: List[String]
+  ): Vehicles[IO] = ???
+    // Same as `request` method
+
 }
 ```
 
@@ -589,16 +567,18 @@ trait Vehicles[F[_]] {
 new Vehicles[IO] {
   def list(): IO[Seq[Vehicle]] = 
     for {
-      now <- IO.realTimeInstant                  // Get the time of measurement
-      records <- client.vehicles()               // Use the client to list vehicle positions
-    } yield records.map{ record =>               // map each resulting row from MPK API
-      Vehicle(                                   // and turn it into our `Vehicle` model
-        lineName = Vehicle.LineName(record.name),
-        measuredAt = now,
-        position = Position(record.x, record.y),
-        id = Vehicle.Id(record.k.toString)
-      )
-    }
+      now <- IO.realTimeInstant  // Get the time of measurement
+      records <- request         // Same as few slides before
+      results = records          // map each resulting row from MPK API
+        .map { record =>         // and turn it into our `Vehicle` model
+          Vehicle(
+            lineName = Vehicle.LineName(record.name),
+            measuredAt = now,
+            position = Position(record.x, record.y),
+            id = Vehicle.Id(record.k.toString)
+          )
+        }
+    } yield results
 }
 ```
 
@@ -897,11 +877,19 @@ Easy right?
 
 ---
 
+<style scoped>
+/* Center the image */
+p {
+  text-align: center;
+}
+</style>
+
 # Step by step
 
-Slide over data, take current and previous measurement and calculate the diff
-
 ![](https://media.tenor.com/Bes3SdBqqBMAAAAC/hold-up-umm.gif)
+
+
+Slide over data, take current and previous measurement and calculate the diff
 
 ---
 
@@ -1217,6 +1205,16 @@ LineName(8) -> VehicleStats(distance = 8850 m, duration = 3663 s, avgSpeed = 8.6
 * Streams are not that hard
 * Smartly applied `Monoid` can save you some code
 * Bike can save you some time
+
+---
+
+# Kraków specific links
+
+- https://github.com/tomekzaw/ttss
+- https://gtfs.ztp.krakow.pl/robi
+- http://www.ttss.krakow.pl/internetservice/
+- http://ttss.mpk.krakow.pl/internetservice/
+- http://kokon.mpk.krakow.pl/
 
 ---
 
