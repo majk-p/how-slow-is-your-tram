@@ -2,12 +2,12 @@ import cats.effect.*
 import cats.implicits.given
 import io.circe.Codec
 import io.circe.Decoder
-import sttp.client3.SttpBackend
-import sttp.client3.basicRequest
-import sttp.client3.UriContext
-import sttp.client3.circe.*
-import sttp.client3.httpclient.fs2.HttpClientFs2Backend
+import sttp.client4.{Backend => SttpBackend}
+import sttp.client4.basicRequest
+import sttp.client4.UriContext
+import sttp.client4.circe.*
 import sttp.model.MediaType
+import scala.util.Try
 
 trait Vehicles[F[_]] {
   def list(): F[Seq[Vehicle]]
@@ -18,7 +18,7 @@ object Vehicles {
   def apply[F[_]](using ev: Vehicles[F]): Vehicles[F] = ev
 
   def mpkWrocInstance(
-      backend: SttpBackend[IO, Any],
+      backend: SttpBackend[Try],
       buses: List[String],
       trams: List[String]
   ): Vehicles[IO] =
@@ -40,13 +40,14 @@ object Vehicles {
         } yield results
 
       private val request =
-        basicRequest
-          .post(apiUri)
-          .body(payload(buses, trams))
-          .contentType(MediaType.ApplicationXWwwFormUrlencoded)
-          .response(asJson[List[MpkRecord]])
-          .send(backend)
-          .map(_.body)
+        IO.fromTry(
+          basicRequest
+            .post(apiUri)
+            .body(payload(buses, trams))
+            .contentType(MediaType.ApplicationXWwwFormUrlencoded)
+            .response(asJson[List[MpkRecord]])
+            .send(backend)
+        ).map(_.body)
           .rethrow
 
       private def payload(buses: List[String], trams: List[String]) =

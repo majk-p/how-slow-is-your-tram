@@ -22,25 +22,36 @@ marp: true
 
 ---
 
-# I wanted to show how to enter the venue
+##### Great stories feature 
+# Great villains
 
 ---
 
-# Good start
+# Star Wars
 
-![bg right:65% 100%](./img/pub-entrance.png)
+![bg right:60% 90%](img/vader.jpg)
+
+---
+
+# Batman
+
+![bg right:60% 90%](img/joker.jpg)
+
+---
+
+# Harry Potter
+
+![bg right:60% 90%](img/voldemort-smiling.gif)
+
+---
+
+# And...
 
 ---
 
 <!-- _class: divider -->
 
-# So, trams in Wrocław
-
----
-
-<!-- _class: divider -->
-
-# They get creative
+# My story
 
 ![bg right:55% 95%](img/tram-derailment.jpg)
 
