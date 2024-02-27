@@ -1,8 +1,8 @@
 //> using platform native
 //> using toolkit typelevel:latest
-//> using dep "com.softwaremill.sttp.client4::fs2::4.0.0-M8"
-//> using dep "com.softwaremill.sttp.client4::circe::4.0.0-M8"
-//> using dep "com.softwaremill.sttp.client4::core::4.0.0-M8"
+//> using dep "com.softwaremill.sttp.client4::fs2::3.3.18+1747-c417ba1d+20231231-1442-SNAPSHOT"
+//> using dep "com.softwaremill.sttp.client4::circe::3.3.18+1747-c417ba1d+20231231-1442-SNAPSHOT"
+//> using dep "com.softwaremill.sttp.client4::core::3.3.18+1747-c417ba1d+20231231-1442-SNAPSHOT"
 
 //> using file "Vehicles.scala"
 //> using file "StatsCalculator.scala"

@@ -19,19 +19,29 @@ import sttp.client4.curl.AbstractSyncCurlBackend
 import sttp.monad.MonadAsyncError
 import sttp.client4.Backend
 import sttp.client4.wrappers.FollowRedirectsBackend
+import sttp.client4.wrappers.DelegateBackend
+import sttp.client4.impl.cats.CurlCatsBackend
+import sttp.client4.curl.Modifiers
+import sttp.client4.curl.internal.CurlOption
 
 object http {
 
-  private class CurlIOBackend(verbose: Boolean)
-      extends AbstractSyncCurlBackend(CatsMonadAsyncError[IO], verbose)
-      with Backend[IO] {}
-  def curlIOBackend = FollowRedirectsBackend(new CurlIOBackend(false))
+  // private class CurlIOBackend(verbose: Boolean)
+  //     extends AbstractSyncCurlBackend(CatsMonadAsyncError[IO], verbose)
+  //     with Backend[IO] {}
+
+  private val mods = Modifiers.empty
+    .and(CurlOption.SslVerifyPeer, 0)
+    .and(CurlOption.SslVerifyHost, 0)
+    .and(CurlOption.SslVerifystatus, 0)
+
+  def curlIOBackend = CurlCatsBackend[IO](true, mods)
 
   def ioBackend: Resource[IO, Backend[IO]] =
     Resource.pure(curlIOBackend)
 
   def tryBackend: Resource[IO, Backend[Try]] =
-    Resource.pure(CurlTryBackend())
+    Resource.pure(CurlTryBackend(true, mods))
 
   // def backend = {
   //   val httpClient: HttpClient =
