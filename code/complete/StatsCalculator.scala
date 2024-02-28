@@ -6,6 +6,7 @@ import cats.kernel.Monoid
 import Vehicle.Id
 import Vehicle.LineName
 import cats.syntax.group
+import cats.Show
 
 object StatsCalculator {
 
@@ -55,8 +56,8 @@ object StatsCalculator {
   def stats(vehicles: Vehicles[IO])(
       interval: FiniteDuration,
       numberOfSamples: Int
-  ): IO[Map[(LineName, Id), VehicleStats]] =
-    fs2.Stream
+  ): IO[Map[(LineName, Id), VehicleStats]] = {
+    val stream = fs2.Stream
       .fixedRateStartImmediately[IO](interval)
       .zipWithIndex
       .evalMap((_, idx) =>
@@ -69,9 +70,29 @@ object StatsCalculator {
       .map(chunk => calculateDiff(chunk(0), chunk(1)))
       .take(numberOfSamples)
       .fold(Map.empty)(summarize)
-      .compile
-      .toList
-      .map(_.head)
+    stream.compile.lastOrError
+
+    // import aquascape.*
+    // import aquascape.given
+    // aquascape.Trace
+    //   .unchunked[IO]
+    //   .flatMap { t =>
+    //     import doodle.core.*
+    //     import doodle.syntax.all.*
+    //     import doodle.java2d.*
+    //     import cats.effect.unsafe.implicits.global
+    //     import doodle.core.format.Png
+    //     given aquascape.Trace[IO] = t
+    //     given [A]: Show[A] = Show.fromToString
+    //     val output = stream.compile.lastOrError
+    //     val compiledTraced = output.traceCompile("My stream")
+    //     val picture = compiledTraced.draw()
+    //     picture.flatMap(_.writeToIO[Png]("/tmp/stream.png")) *> IO.println(
+    //       "Wrote image"
+    //     ) *> output
+    //   }
+
+  }
 
   given Monoid[VehicleStats] with {
 

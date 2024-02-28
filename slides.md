@@ -5,20 +5,13 @@ transition: slide
 # see https://github.com/marp-team/marp-cli/blob/main/docs/bespoke-transitions/README.md#built-in-transitions
 marp: true
 ---
-
+<!-- _footer: Photo by [Guillaume.G](https://commons.wikimedia.org/wiki/File:Tram_Wroclaw,_Moderus_Beta_MF_24_AC_n%C2%B02916_(cropped).jpg#mw-jump-to-license) CC BY-SA 4.0 -->
 <!-- _class: intro -->
 # How slow is your tram? :tram:
 
 ###### using STTP, CE3, FS2 and scala-cli
 
-![bg right:30% ](img/tram.jpg)
-
---- 
-
-# About me :wave:
-
-- https://michal.pawlik.dev 📄
-- [@majkp@hostux.social](https://hostux.social/@majkp) 🔌
+![bg right:40% ](img/tram2.jpg)
 
 ---
 
@@ -55,11 +48,32 @@ marp: true
 
 ![bg right:55% 95%](img/tram-derailment.jpg)
 
+--- 
+
+# About me :wave:
+
+- https://michal.pawlik.dev 📄
+- [@majkp@hostux.social](https://hostux.social/@majkp) 🔌
+
+
+---
+
+# Like when I was giving this talk in Wrocław
+
+---
+
+## They hid the entrance to the venue
+
+with a tram
+
+![bg right:55% 95%](img/pub-entrance.png)
+
+
 ---
 
 <!-- _class: divider yellow-background -->
 
-# How bad can it be?
+# How slow is your tram?
 
 Let's find out
 
@@ -80,23 +94,10 @@ Let's find out
 First shot: [Wrocław Open Data](https://www.wroclaw.pl/open-data/dataset/lokalizacjapojazdowkomunikacjimiejskiejnatrasie_data)
 
 ---
+<!-- _footer: Data fetched on 12.08.2023 -->
 
 # Wroclaw Open Data
 
-```bash
-$ curl -s https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b7-fdd168c210a2 | head | column -t -s,
-_id  Nr_Boczny  Nr_Rej  Brygada  Nazwa_Linii  Ostatnia_Pozycja_Szerokosc  Ostatnia_Pozycja_Dlugosc  Data_Aktualizacji
-1    0          None                          51.1059417724609            17.0331401824951          2023-08-12 15:14:34.863000
-2    1900       None    None     None         51.0670280456543            17.0984840393066          2023-08-11 12:07:08.877000
-3    2206       None    01517                 51.1253318786621            17.0414428710938          2023-08-12 16:09:33.540000
-4    2208       None    00309                 51.1245498657227            17.0415744781494          2023-08-12 16:08:45.613000
-5    2212       None                          51.079460144043             17.0047359466553          2023-08-12 16:08:49.817000
-```
-###### Data fetched on 12.08.2023
-
----
-
-# Some of it is pretty old 👴
 
 ```bash
 $ curl -s https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b7-fdd168c210a2 | 
@@ -111,15 +112,19 @@ tail -n +2 | sort -t, -k 8,8 | head | column -t -s,
 398  7004  DW3987J               54.5531539916992  17.7985401153564  2022-10-03 15:53:05.910000
 ```
 
-* Inconsistent
-* Poor refresh rate
-* Confusing old records
+- Poor refresh rate
+- Confusing old records
+- Needs cleanup
 
 ---
 
+<!-- _footer: Foto: [Mateusz Iwanczyk Photo](https://www.facebook.com/MateuszIwanczykPhotography) -->
+
 # Wrong way 🚧
 
-![bg right:60% width:800px](./img/tram-detrailment-2.jpg)
+![bg right:60% width:800px](./img/tram-derailment-2.jpg)
+
+
 
 ---
 
@@ -409,11 +414,13 @@ List(
 
 ---
 
+<!-- _footer: Photo from [Gazeta Wrocławska](https://gazetawroclawska.pl/dwa-wykolejenia-we-wroclawiu-mpk-wprowadzilo-objazdy-zdjecia/ga/c1-15674410/zd/50255318) -->
+
 # Nice, we've got the data!
 
 We're back on track
 
-![bg right:60% width:800px](./img/tram-skoda-on-rails.jpg)
+![bg right:60% width:800px](./img/tram-back-on-rails.jpg)
 
 ---
 
@@ -741,26 +748,32 @@ Short intro
 
 Think of it for a second
 
-<!-- 
-Imperative solution
+---
+
+I asked an LLM for a mutable, old fashioned solution
 
 ```scala
-var counter = 1
-var sumCounter = 0
-var sum = 0
+var currentNumber =  1
+var sumOfGroup =  0
+var count =  0
+val sumsList = List.newBuilder[Int] // Use a ListBuilder for efficient list construction
 
-for (i <- 0 until 10) {
-  for (j <- 0 until 3) {
-    if (counter % 2 != 0) {
-      sum += counter
-    }
-    counter += 1
+while (count <  10) {
+  sumOfGroup += currentNumber
+  if (currentNumber %  3 ==  0) { // Check if it's the third number in the group
+    sumsList += sumOfGroup
+    count +=  1
+    sumOfGroup =  0 // Reset sum for the next group
   }
-  println(s"Sum ${sumCounter + 1}: $sum")
-  sum = 0
-  sumCounter += 1
+  currentNumber +=  2 // Increment by  2 to keep only odd numbers
 }
-``` -->
+
+// Convert the ListBuilder to a List and print the sums
+val sums = sumsList.result()
+sums.foreach(println)
+```
+
+
 
 ---
 

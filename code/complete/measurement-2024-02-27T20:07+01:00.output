@@ -1,0 +1,154 @@
+Initializing client
+Fetching vehicles 0%
+Fetching vehicles 1%
+Fetching vehicles 3%
+Fetching vehicles 4%
+Fetching vehicles 6%
+Fetching vehicles 7%
+Fetching vehicles 8%
+Fetching vehicles 10%
+Fetching vehicles 11%
+Fetching vehicles 13%
+Fetching vehicles 14%
+Fetching vehicles 15%
+Fetching vehicles 17%
+Fetching vehicles 18%
+Fetching vehicles 19%
+Fetching vehicles 21%
+Fetching vehicles 22%
+Fetching vehicles 24%
+Fetching vehicles 25%
+Fetching vehicles 26%
+Fetching vehicles 28%
+Fetching vehicles 29%
+Fetching vehicles 31%
+Fetching vehicles 32%
+Fetching vehicles 33%
+Fetching vehicles 35%
+Fetching vehicles 36%
+Fetching vehicles 38%
+Fetching vehicles 39%
+Fetching vehicles 40%
+Fetching vehicles 42%
+Fetching vehicles 43%
+Fetching vehicles 44%
+Fetching vehicles 46%
+Fetching vehicles 47%
+Fetching vehicles 49%
+Fetching vehicles 50%
+Fetching vehicles 51%
+Fetching vehicles 53%
+Fetching vehicles 54%
+Fetching vehicles 56%
+Fetching vehicles 57%
+Fetching vehicles 58%
+Fetching vehicles 60%
+Fetching vehicles 61%
+Fetching vehicles 63%
+Fetching vehicles 64%
+Fetching vehicles 65%
+Fetching vehicles 67%
+Fetching vehicles 68%
+Fetching vehicles 69%
+Fetching vehicles 71%
+Fetching vehicles 72%
+Fetching vehicles 74%
+Fetching vehicles 75%
+Fetching vehicles 76%
+Fetching vehicles 78%
+Fetching vehicles 79%
+Fetching vehicles 81%
+Fetching vehicles 82%
+Fetching vehicles 83%
+Fetching vehicles 85%
+Fetching vehicles 86%
+Fetching vehicles 88%
+Fetching vehicles 89%
+Fetching vehicles 90%
+Fetching vehicles 92%
+Fetching vehicles 93%
+Fetching vehicles 94%
+Fetching vehicles 96%
+Fetching vehicles 97%
+Fetching vehicles 99%
+Fetching vehicles 100%
+------------------------------------------------------------------------------------------
+(LineName(21),Id(23642829)) -> VehicleStats(distance = 2212 m, duration = 648 s, avgSpeed = 12.29001428823049 km/h)
+(LineName(20),Id(23641113)) -> VehicleStats(distance = 5034 m, duration = 648 s, avgSpeed = 27.968767884395206 km/h)
+(LineName(20),Id(23643500)) -> VehicleStats(distance = 376 m, duration = 81 s, avgSpeed = 16.69539583827097 km/h)
+(LineName(18),Id(23642533)) -> VehicleStats(distance = 1954 m, duration = 648 s, avgSpeed = 10.853555492345187 km/h)
+(LineName(22),Id(23642216)) -> VehicleStats(distance = 0 m, duration = 117 s, avgSpeed = 0.0 km/h)
+(LineName(149),Id(23653594)) -> VehicleStats(distance = 4055 m, duration = 648 s, avgSpeed = 22.528047451617944 km/h)
+(LineName(21),Id(23642771)) -> VehicleStats(distance = 3747 m, duration = 648 s, avgSpeed = 20.818459627301383 km/h)
+(LineName(18),Id(23642643)) -> VehicleStats(distance = 1869 m, duration = 648 s, avgSpeed = 10.38605308200768 km/h)
+(LineName(18),Id(23642822)) -> VehicleStats(distance = 1899 m, duration = 468 s, avgSpeed = 14.6078743643972 km/h)
+(LineName(145),Id(23653164)) -> VehicleStats(distance = 682 m, duration = 225 s, avgSpeed = 10.912183576008593 km/h)
+(LineName(18),Id(23642499)) -> VehicleStats(distance = 3323 m, duration = 648 s, avgSpeed = 18.46165325102264 km/h)
+(LineName(8),Id(23642195)) -> VehicleStats(distance = 2085 m, duration = 648 s, avgSpeed = 11.580850211807732 km/h)
+(LineName(8),Id(23642215)) -> VehicleStats(distance = 1077 m, duration = 252 s, avgSpeed = 15.386196436167253 km/h)
+(LineName(16),Id(23642318)) -> VehicleStats(distance = 2228 m, duration = 648 s, avgSpeed = 12.379001850495682 km/h)
+(LineName(8),Id(23643058)) -> VehicleStats(distance = 2242 m, duration = 432 s, avgSpeed = 18.687215789745604 km/h)
+(LineName(149),Id(23653631)) -> VehicleStats(distance = 2102 m, duration = 648 s, avgSpeed = 11.67968482628332 km/h)
+(LineName(16),Id(23643119)) -> VehicleStats(distance = 132 m, duration = 648 s, avgSpeed = 0.7329594999557411 km/h)
+(LineName(16),Id(23643201)) -> VehicleStats(distance = 2848 m, duration = 648 s, avgSpeed = 15.821720611152218 km/h)
+(LineName(8),Id(23642174)) -> VehicleStats(distance = 2535 m, duration = 648 s, avgSpeed = 14.081085862763064 km/h)
+(LineName(22),Id(23643075)) -> VehicleStats(distance = 2760 m, duration = 648 s, avgSpeed = 15.335143416434791 km/h)
+(LineName(20),Id(23641179)) -> VehicleStats(distance = 1292 m, duration = 648 s, avgSpeed = 7.179471651003929 km/h)
+(LineName(20),Id(23643460)) -> VehicleStats(distance = 101 m, duration = 648 s, avgSpeed = 0.5584452044768669 km/h)
+(LineName(21),Id(23642604)) -> VehicleStats(distance = 3528 m, duration = 648 s, avgSpeed = 19.598571848920532 km/h)
+(LineName(18),Id(23642697)) -> VehicleStats(distance = 2617 m, duration = 396 s, avgSpeed = 23.791551836519336 km/h)
+(LineName(21),Id(23642713)) -> VehicleStats(distance = 907 m, duration = 360 s, avgSpeed = 9.073234653616701 km/h)
+(LineName(8),Id(23644556)) -> VehicleStats(distance = 572 m, duration = 162 s, avgSpeed = 12.713278681600478 km/h)
+(LineName(16),Id(23642299)) -> VehicleStats(distance = 2539 m, duration = 648 s, avgSpeed = 14.104503417814954 km/h)
+(LineName(20),Id(23643570)) -> VehicleStats(distance = 2350 m, duration = 648 s, avgSpeed = 13.055315981127741 km/h)
+(LineName(124),Id(23725720)) -> VehicleStats(distance = 3032 m, duration = 648 s, avgSpeed = 16.84631443953374 km/h)
+(LineName(22),Id(23644493)) -> VehicleStats(distance = 237 m, duration = 648 s, avgSpeed = 1.3152072878331926 km/h)
+(LineName(8),Id(23644512)) -> VehicleStats(distance = 1262 m, duration = 324 s, avgSpeed = 14.0264590535796 km/h)
+(LineName(145),Id(23653065)) -> VehicleStats(distance = 144 m, duration = 27 s, avgSpeed = 19.259129044251026 km/h)
+(LineName(22),Id(23644532)) -> VehicleStats(distance = 3090 m, duration = 648 s, avgSpeed = 17.166643507516966 km/h)
+(LineName(145),Id(23653186)) -> VehicleStats(distance = 2150 m, duration = 648 s, avgSpeed = 11.945919196957453 km/h)
+(LineName(22),Id(23644470)) -> VehicleStats(distance = 2748 m, duration = 648 s, avgSpeed = 15.26860078714865 km/h)
+(LineName(22),Id(23642282)) -> VehicleStats(distance = 2412 m, duration = 648 s, avgSpeed = 13.40226029692017 km/h)
+(LineName(20),Id(23643883)) -> VehicleStats(distance = 3182 m, duration = 648 s, avgSpeed = 17.678985579103657 km/h)
+(LineName(145),Id(23653165)) -> VehicleStats(distance = 232 m, duration = 144 s, avgSpeed = 5.801857826373959 km/h)
+(LineName(18),Id(23642550)) -> VehicleStats(distance = 3436 m, duration = 567 s, avgSpeed = 21.81492638590913 km/h)
+(LineName(145),Id(23653136)) -> VehicleStats(distance = 1683 m, duration = 648 s, avgSpeed = 9.350658042139104 km/h)
+(LineName(20),Id(23640866)) -> VehicleStats(distance = 1302 m, duration = 648 s, avgSpeed = 7.2347791585500305 km/h)
+(LineName(21),Id(23642660)) -> VehicleStats(distance = 896 m, duration = 648 s, avgSpeed = 4.978224029200424 km/h)
+(LineName(124),Id(23726791)) -> VehicleStats(distance = 2848 m, duration = 648 s, avgSpeed = 15.824279516586612 km/h)
+(LineName(20),Id(23643918)) -> VehicleStats(distance = 3622 m, duration = 648 s, avgSpeed = 20.122558116233765 km/h)
+(LineName(21),Id(23642516)) -> VehicleStats(distance = 1471 m, duration = 648 s, avgSpeed = 8.172123032020961 km/h)
+(LineName(21),Id(23642733)) -> VehicleStats(distance = 2456 m, duration = 648 s, avgSpeed = 13.642045130170526 km/h)
+(LineName(149),Id(23653614)) -> VehicleStats(distance = 243 m, duration = 648 s, avgSpeed = 1.349408497782184 km/h)
+(LineName(18),Id(23642790)) -> VehicleStats(distance = 2811 m, duration = 648 s, avgSpeed = 15.61905782624636 km/h)
+(LineName(21),Id(23642752)) -> VehicleStats(distance = 5 m, duration = 180 s, avgSpeed = 0.10645202234341382 km/h)
+(LineName(124),Id(23726768)) -> VehicleStats(distance = 2163 m, duration = 288 s, avgSpeed = 27.035819633983337 km/h)
+(LineName(22),Id(23643097)) -> VehicleStats(distance = 3618 m, duration = 648 s, avgSpeed = 20.10169353706001 km/h)
+(LineName(8),Id(23643179)) -> VehicleStats(distance = 2664 m, duration = 648 s, avgSpeed = 14.799714029439983 km/h)
+(LineName(21),Id(23642839)) -> VehicleStats(distance = 1386 m, duration = 252 s, avgSpeed = 19.803429220390438 km/h)
+(LineName(22),Id(23642237)) -> VehicleStats(distance = 2989 m, duration = 648 s, avgSpeed = 16.60830915699712 km/h)
+(LineName(16),Id(23643157)) -> VehicleStats(distance = 2851 m, duration = 648 s, avgSpeed = 15.841418462557701 km/h)
+(LineName(124),Id(23725748)) -> VehicleStats(distance = 3635 m, duration = 648 s, avgSpeed = 20.196707339327535 km/h)
+(LineName(145),Id(23653066)) -> VehicleStats(distance = 3442 m, duration = 585 s, avgSpeed = 21.183260031166164 km/h)
+(LineName(16),Id(23642260)) -> VehicleStats(distance = 1239 m, duration = 648 s, avgSpeed = 6.88373932558397 km/h)
+(LineName(20),Id(23641146)) -> VehicleStats(distance = 2062 m, duration = 648 s, avgSpeed = 11.457258453341543 km/h)
+(LineName(8),Id(23642151)) -> VehicleStats(distance = 2479 m, duration = 648 s, avgSpeed = 13.771151932431252 km/h)
+(LineName(18),Id(23642623)) -> VehicleStats(distance = 3811 m, duration = 648 s, avgSpeed = 21.1723688105155 km/h)
+(LineName(18),Id(23642585)) -> VehicleStats(distance = 58 m, duration = 153 s, avgSpeed = 1.3553408174952193 km/h)
+(LineName(16),Id(23644452)) -> VehicleStats(distance = 0 m, duration = 126 s, avgSpeed = 0.0 km/h)
+(LineName(20),Id(23643622)) -> VehicleStats(distance = 3707 m, duration = 648 s, avgSpeed = 20.59544039137338 km/h)
+(LineName(20),Id(23641300)) -> VehicleStats(distance = 3376 m, duration = 648 s, avgSpeed = 18.754662286875693 km/h)
+==========================================================================================
+LineName(22) -> VehicleStats(distance = 17855 m, duration = 4653 s, avgSpeed = 13.814783372817208 km/h)
+LineName(16) -> VehicleStats(distance = 11837 m, duration = 4014 s, avgSpeed = 10.616519846162658 km/h)
+LineName(21) -> VehicleStats(distance = 16608 m, duration = 4680 s, avgSpeed = 12.775979447129064 km/h)
+LineName(145) -> VehicleStats(distance = 8334 m, duration = 2277 s, avgSpeed = 13.176593334007084 km/h)
+LineName(18) -> VehicleStats(distance = 21778 m, duration = 4824 s, avgSpeed = 16.25240327108979 km/h)
+LineName(124) -> VehicleStats(distance = 11679 m, duration = 2232 s, avgSpeed = 18.83704011902033 km/h)
+LineName(8) -> VehicleStats(distance = 14916 m, duration = 3762 s, avgSpeed = 14.273576307970949 km/h)
+LineName(149) -> VehicleStats(distance = 6400 m, duration = 1944 s, avgSpeed = 11.852380258561148 km/h)
+LineName(20) -> VehicleStats(distance = 26404 m, duration = 6561 s, avgSpeed = 14.488156324695922 km/h)
+Fastest: (LineName(124),VehicleStats(distance = 11679 m, duration = 2232 s, avgSpeed = 18.83704011902033 km/h))
+Slowest: (LineName(16),VehicleStats(distance = 11837 m, duration = 4014 s, avgSpeed = 10.616519846162658 km/h))
+Average: 14.077704263618639
+Program finished
