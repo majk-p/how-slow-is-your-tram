@@ -2,7 +2,7 @@
 //> using dep "com.softwaremill.sttp.client3::fs2:3.9.3"
 //> using dep "com.softwaremill.sttp.client3::circe:3.9.3"
 //> using dep "com.softwaremill.sttp.client3::core:3.9.3"
-//> using dep "com.github.zainab-ali::aquascape:0.0-1aac3b6-SNAPSHOT"
+//> using dep "com.github.zainab-ali::aquascape:0.0-59dea01-SNAPSHOT"
 //> using file "WroclawOpenDataClient.scala"
 //> using file "Vehicles.scala"
 //> using file "StatsCalculator.scala"
@@ -24,13 +24,13 @@ object Main extends IOApp.Simple {
 
   val trams = List("8", "16", "18", "20", "21", "22")
   val buses = List("124", "145", "149")
-  val interval = 9.seconds
-  val numberOfSamples = 72
+  val interval = 3.seconds
+  val numberOfSamples = 3
 
   def program(backend: SttpBackend[IO, Any]) = for {
     _ <- IO.println("Initializing client")
     vehicles = Vehicles.mpkWrocInstance(backend, buses, trams)
-    rawStats <- StatsCalculator.stats(vehicles)(interval, numberOfSamples)
+    rawStats <- StatsCalculator.statsTraced(vehicles)(interval, numberOfSamples)
     stats = rawStats.filterNot((_, stats) => stats.avgSpeedKMH > 80)
     _ <- IO.println("-" * 90)
     _ <- IO.println(stats.mkString("\n"))

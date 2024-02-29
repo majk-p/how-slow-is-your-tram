@@ -53,11 +53,78 @@ object StatsCalculator {
     Monoid.combine(previousSummary, currentSummary)
   }
 
-  def stats(vehicles: Vehicles[IO])(
+  def statsTraced(vehicles: Vehicles[IO])(
       interval: FiniteDuration,
       numberOfSamples: Int
   ): IO[Map[(LineName, Id), VehicleStats]] = {
-    val stream = fs2.Stream
+
+    import aquascape.*
+    import aquascape.given
+    aquascape.Trace
+      .unchunked[IO]
+      .flatMap { t =>
+        import doodle.core.*
+        import doodle.syntax.all.*
+        import doodle.java2d.*
+        import cats.effect.unsafe.implicits.global
+        import doodle.core.format.Png
+        given aquascape.Trace[IO] = t
+
+        given positionDiffSeqShow: Show[Seq[VehiclePositionDiff]] =
+          seq => s"Seq(VehiclePositionDiff)"
+
+        given vehicleSeqShow: Show[Seq[Vehicle]] =
+          seq => s"Seq(Vehicle)"
+
+        given Show[List[
+          Map[(Vehicle.LineName, Vehicle.Id), StatsCalculator.VehicleStats]
+        ]] =
+          list =>
+            s"List[Map[(Vehicle.LineName, Vehicle.Id), StatsCalculator.VehicleStats]]"
+
+        given Show[
+          Map[(Vehicle.LineName, Vehicle.Id), StatsCalculator.VehicleStats]
+        ] =
+          _ =>
+            "Map[(Vehicle.LineName, Vehicle.Id), StatsCalculator.VehicleStats]]"
+        given Show[fs2.Chunk[Seq[Vehicle]]] =
+          chunk => s"Chunk(${chunk(0).show},\n ${chunk(1).show})"
+
+        val stream = fs2.Stream
+          .fixedRateStartImmediately[IO](interval)
+          .zipWithIndex
+          .evalTap((_, idx) =>
+            IO.println(
+              s"Fetching vehicles ${(idx / numberOfSamples.toDouble * 100).round}%"
+            )
+          )
+          .evalMap(_ => vehicles.list())
+          .trace("Fetched vehicles")
+          .sliding(2)
+          .trace("Sliding pairs")
+          .map(chunk => calculateDiff(chunk(0), chunk(1)))
+          .trace("Calculating diffs")
+          .take(numberOfSamples)
+          .trace(s"Take $numberOfSamples results")
+          .fold(Map.empty)(summarize)
+          .trace("Summarize the diffs")
+
+        val output = stream.compile.toList
+        val compiledTraced = output.traceCompile("My stream")
+        val picture = compiledTraced.draw()
+
+        picture.flatMap(_.writeToIO[Png]("/tmp/stream.png")) *> IO.println(
+          "Wrote image"
+        ) *> compiledTraced.map(_.head)
+      }
+
+  }
+
+  def stats(vehicles: Vehicles[IO])(
+      interval: FiniteDuration,
+      numberOfSamples: Int
+  ): IO[Map[(LineName, Id), VehicleStats]] =
+    fs2.Stream
       .fixedRateStartImmediately[IO](interval)
       .zipWithIndex
       .evalMap((_, idx) =>
@@ -70,29 +137,8 @@ object StatsCalculator {
       .map(chunk => calculateDiff(chunk(0), chunk(1)))
       .take(numberOfSamples)
       .fold(Map.empty)(summarize)
-    stream.compile.lastOrError
-
-    // import aquascape.*
-    // import aquascape.given
-    // aquascape.Trace
-    //   .unchunked[IO]
-    //   .flatMap { t =>
-    //     import doodle.core.*
-    //     import doodle.syntax.all.*
-    //     import doodle.java2d.*
-    //     import cats.effect.unsafe.implicits.global
-    //     import doodle.core.format.Png
-    //     given aquascape.Trace[IO] = t
-    //     given [A]: Show[A] = Show.fromToString
-    //     val output = stream.compile.lastOrError
-    //     val compiledTraced = output.traceCompile("My stream")
-    //     val picture = compiledTraced.draw()
-    //     picture.flatMap(_.writeToIO[Png]("/tmp/stream.png")) *> IO.println(
-    //       "Wrote image"
-    //     ) *> output
-    //   }
-
-  }
+      .compile
+      .lastOrError
 
   given Monoid[VehicleStats] with {
 
