@@ -50,7 +50,9 @@ marp: true
 
 --- 
 
-# About me :wave:
+# My name is Michał :wave:
+
+And this is my fs2 story with trams
 
 - https://michal.pawlik.dev 📄
 - [@majkp@hostux.social](https://hostux.social/@majkp) 🔌
@@ -944,9 +946,8 @@ Important part
 def calculateDiff(snapshot1: Seq[Vehicle], snapshot2: Seq[Vehicle]): Seq[VehiclePositionDiff] =
   snapshot1
     .join(snapshot2)
-    .map(
-      (v1, v2) => 
-        VehiclePositionDiff(v1.lineName, v1.id, secondDuration(v1.measuredAt, v2.measuredAt), v1.distance(v2))
+    .map( (v1, v2) => 
+      VehiclePositionDiff(v1.lineName, v1.id, secondDuration(v1.measuredAt, v2.measuredAt), v1.distance(v2))
     )
 
 case class VehiclePositionDiff(line: Vehicle.LineName, id: Vehicle.Id, secondsDuration: Double, metersDistance: Double)
@@ -1036,8 +1037,7 @@ def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] =
     .take(numberOfSamples)
     .fold(Map.empty)(summarize) // 👈 `summarize` needs explaining
     .compile
-    .toList
-    .map(_.head)
+    .lastOrError
 ```
 
 ---
@@ -1260,7 +1260,25 @@ Mastodon: [@majkp@hostux.social](https://hostux.social/@majkp)
 
 ---
 
-# Bonus!
+# Bonus #1!
+
+---
+
+# Aquascape
+
+Improve you streams understanding with diagrams 
+
+https://zainab-ali.github.io/aquascape/
+
+---
+
+![bg 100%](./img/stream-tracing-result-trim.png)
+
+---
+
+# Bonus #2!
+
+Monoid magic
 
 ---
 
