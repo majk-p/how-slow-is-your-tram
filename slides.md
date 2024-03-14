@@ -52,24 +52,71 @@ marp: true
 
 # My name is Michał :wave:
 
-And this is my fs2 story with trams
+## I'm ultimately unlucky with public transportation 
 
-- https://michal.pawlik.dev 📄
-- [@majkp@hostux.social](https://hostux.social/@majkp) 🔌
+--- 
+
+# My name is Michał :wave:
+
+## I'm ultimately unlucky with public transportation 
+
+And this is my fs2 story with trams
 
 
 ---
 
 # Like when I was giving this talk in Wrocław
 
+![bg right 100%](img/wsug-banner.png)
+
 ---
 
 ## They hid the entrance to the venue
 
-with a tram
-
 ![bg right:55% 95%](img/pub-entrance.png)
 
+
+---
+
+# Or the other day
+
+
+---
+
+<!-- _footer: Foto: [Mateusz Iwanczyk Photo](https://www.facebook.com/MateuszIwanczykPhotography) -->
+
+# They took stopping at a bus stop too literally
+
+![bg left:60% width:800px](./img/tram-derailment-2.jpg)
+
+
+---
+
+<!-- _footer: Foto: [Jarosław Jakubczak](https://gazetawroclawska.pl/awaria-torowiska-i-wykolejenie-tramwaju-w-rejonie-wielkiej-wyspy-i-placu-grunwaldzkiego/ga/c1-14649973/zd/40659813) -->
+
+## This happens to me
+
+![bg right:60% width:800px](./img/crash1.jpg)
+
+---
+
+<!-- _footer: Foto: [wroclawskakomunikacja.pl](https://wroclawskakomunikacja.pl/raporty-przeglad/66-wykolejenia-i-zdarzenia/408-wykolejenie-na-ul-teatralnej-zdjecia) -->
+
+## from time
+
+![bg left:60% width:800px](./img/crash2.jpg)
+
+---
+
+<!-- _footer: Foto: [Paweł Relikowski / Polska Press](https://gazetawroclawska.pl/wykolejenie-przy-renomie-we-wroclawiu-tramwaj-wyjechal-z-torow-i-uszkodzil-sygnalizacje/ga/c1-17818881/zd/69774307) -->
+
+## to time
+
+![bg right:60% width:800px](./img/crash3.jpg)
+
+---
+
+Thus I asked myself
 
 ---
 
@@ -77,7 +124,6 @@ with a tram
 
 # How slow is your tram?
 
-Let's find out
 
 ---
 
@@ -90,49 +136,9 @@ Let's find out
 5) Produce statistics
 
 ---
-
-# Find data
-
-First shot: [Wrocław Open Data](https://www.wroclaw.pl/open-data/dataset/lokalizacjapojazdowkomunikacjimiejskiejnatrasie_data)
-
----
-<!-- _footer: Data fetched on 12.08.2023 -->
-
-# Wroclaw Open Data
-
-
-```bash
-$ curl -s https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b7-fdd168c210a2 | 
-tail -n +2 | sort -t, -k 8,8 | head | column -t -s,      
-34   2316  None                  51.1242408752441  17.0405292510986  2022-06-23 21:32:15.773000
-557  8403  None     N10    N     51.1076545715332  17.0392875671387  2022-07-05 15:48:04.690000
-324  4639  None                  51.0772018432617  17.0711059570312  2022-08-22 01:11:25.087000
-292  4606  None     11308  112   51.0749778747559  17.0063076019287  2022-08-22 13:28:43.300000
-379  5483  None     None   None  51.095060667      16.961589167      2022-09-20 23:35:26.007000
-459  7400  None     10001        51.1481552124023  17.0230255126953  2022-09-25 04:40:37.697000
-329  4807  None     None   None  51.1492080688477  17.0239391326904  2022-09-26 09:21:55.910000
-398  7004  DW3987J               54.5531539916992  17.7985401153564  2022-10-03 15:53:05.910000
-```
-
-- Poor refresh rate
-- Confusing old records
-- Needs cleanup
-
----
-
-<!-- _footer: Foto: [Mateusz Iwanczyk Photo](https://www.facebook.com/MateuszIwanczykPhotography) -->
-
-# Wrong way 🚧
-
-![bg right:60% width:800px](./img/tram-derailment-2.jpg)
-
-
-
----
-
 <!-- _class: divider -->
 
-# We need a better source
+# Find data source of vehicle positions
 
 ---
 
@@ -209,13 +215,26 @@ curl -s 'https://mpk.wroc.pl/bus_position' \
 
 ---
 
+<!-- _transition: none -->
+
 # What does it mean? 🤔
 
 * `name` - line name like `31`, `33`, `110`
 * `type` - one of `tram`, `bus`
 * `y` - latitude
 * `x` - longitude
-* `k` - most tricky one, looks like a vehicle id
+* `k` - 🤨
+
+
+---
+
+# What does it mean? 🤔
+
+- `name` - line name like `31`, `33`, `110`
+- `type` - one of `tram`, `bus`
+- `y` - latitude
+- `x` - longitude
+- `k` - 🤨 looks like a vehicle id
 
 ---
 
@@ -253,33 +272,8 @@ Shape of our request
 
 # STTP Client
 
-Start with some imports
-
-```scala
-//> using dep "com.softwaremill.sttp.client3::fs2:3.8.16"
-//> using dep "com.softwaremill.sttp.client3::circe:3.8.16"
-//> using dep "com.softwaremill.sttp.client3::core:3.8.16"
-//> using toolkit typelevel:latest
-
-import cats.effect.*
-import cats.implicits.given
-import io.circe.Codec
-import sttp.client3.*
-import sttp.client3.circe.*
-import sttp.client3.httpclient.fs2.HttpClientFs2Backend
-import sttp.model.MediaType
-```
-
----
-
-<!-- _class: line-numbers -->
-
-# STTP
-
 ```scala
 val apiUri = uri"https://mpk.wroc.pl/bus_position"
-val trams = List("31", "33")
-val buses = List("110")
 
 def payload(buses: List[String], trams: List[String]) =
   (trams.map(v => s"busList[tram][]=$v") ++
@@ -293,18 +287,33 @@ def payload(buses: List[String], trams: List[String]) =
 
 # STTP
 
+Data model
+
+<!-- _class: line-numbers -->
+```scala
+case class Record(
+  name: String,
+  x: Double,
+  y: Double,
+  k: Int // 🤨
+) derives Codec.AsObject // This will generate JSON Encoder and Decoder 
+```
+
+---
+
+
+# STTP
+
 <!-- _class: line-numbers -->
 
 ```scala
 val apiUri = uri"https://mpk.wroc.pl/bus_position"
-val trams = List("31", "33")
-val buses = List("110")
 
 def payload(buses: List[String], trams: List[String]) =
   (trams.map(v => s"busList[tram][]=$v") ++
     buses.map(v => s"busList[bus][]=$v")).mkString("&")
 
-def request(backend: SttpBackend[IO, Any]) = 
+def request(backend: SttpBackend[IO, Any], buses: List[String], trams: List[String]) = 
   basicRequest
     .post(apiUri)
     .body(payload(buses, trams)) // Something like busList[bus][]=110&busList[tram][]=31&busList[tram][]=33
@@ -323,8 +332,6 @@ def request(backend: SttpBackend[IO, Any]) =
 
 ```scala
 val apiUri = uri"https://mpk.wroc.pl/bus_position"
-val trams = List("31", "33")
-val buses = List("110")
 
 def payload(buses: List[String], trams: List[String]) =
   (trams.map(v => s"busList[tram][]=$v") ++
@@ -335,9 +342,11 @@ case class Record(
   x: Double,
   y: Double,
   k: Int
-) derives Codec.AsObject      // This means the compiler will generate JSON Encoder and Decoder 
+) derives Codec.AsObject // This will generate JSON Encoder and Decoder  
 
-def request(backend: SttpBackend[IO, Any]): IO[List[Record]] = // Note the return type
+def request(
+    backend: SttpBackend[IO, Any], buses: List[String], trams: List[String]
+  ): IO[List[Record]] = // Note the return type
   basicRequest
     .post(apiUri)
     .body(payload(buses, trams)) // Something like busList[bus][]=110&busList[tram][]=31&busList[tram][]=33
@@ -377,10 +386,13 @@ Let's create a backend, execute the request and print the result
 
 ```scala
 object Main extends IOApp.Simple {
+  val buses = List("110")
+  val trams = List("31", "33")
+
   def run = 
     HttpClientFs2Backend
       .resource[IO]()
-      .use(backend => request(backend))
+      .use(backend => request(backend, buses, trams))
       .flatMap(IO.println)
 }
 ```
@@ -393,10 +405,13 @@ object Main extends IOApp.Simple {
 
 ```scala
 object Main extends IOApp.Simple {
+  val buses = List("110")
+  val trams = List("31", "33")
+
   def run = 
     HttpClientFs2Backend
       .resource[IO]()
-      .use(backend => request(backend))
+      .use(backend => request(backend, buses, trams))
       .flatMap(IO.println)
 }
 ```
@@ -416,45 +431,21 @@ List(
 
 ---
 
-<!-- _footer: Photo from [Gazeta Wrocławska](https://gazetawroclawska.pl/dwa-wykolejenia-we-wroclawiu-mpk-wprowadzilo-objazdy-zdjecia/ga/c1-15674410/zd/50255318) -->
+<!-- _transition: none -->
+# Nice, we've got the data!
+
+---
 
 # Nice, we've got the data!
 
-We're back on track
+but that `k: Int // 🤨`
 
-![bg right:60% width:800px](./img/tram-back-on-rails.jpg)
-
----
-
-<!-- _class: divider -->
-
-# Plan
-
-1. Find data source of vehicle positions ✅
-2. Fetch and parse ✅
-3. Fetch some more
-4. Calculate diffs
-5. Produce statistics
 
 ---
 
-<!-- _class: divider yellow-background -->
+# `k: Int // 🤨`
 
-# Refactoring time! 🚧
-
----
-
-# Refactoring time! 🚧
-
-The model is bound to what the API gives.
-
-Let's decouple before we move on.
-
----
-
-# Refactoring time! 🚧
-
-Let's hide the API behind an interface
+Let's hide the API call behind an interface
 
 ```scala
 trait Vehicles[F[_]] {
@@ -475,7 +466,7 @@ case class Vehicle(
   lineName: Vehicle.LineName,
   measuredAt: Instant,
   position: Position,
-  id: Vehicle.Id
+  id: Vehicle.Id // no more `k` 🎉
 )
 ```
 
@@ -514,21 +505,18 @@ Our existing code
 
 ```scala
 val apiUri = uri"https://mpk.wroc.pl/bus_position"
-val trams = List("31", "33")
-val buses = List("110")
 
 def payload(buses: List[String], trams: List[String]) = 
-  (trams.map(v => s"busList[tram][]=$v") 
-    ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
+  (trams.map(v => s"busList[tram][]=$v") ++ buses.map(v => s"busList[bus][]=$v")).mkString("&")
 
 case class Record(
   name: String,
   x: Double,
   y: Double,
   k: Int
-) derives Codec.AsObject      // This means the compiler will generate JSON Encoder and Decoder 
+) derives Codec.AsObject // This will generate JSON Encoder and Decoder  
 
-def request(backend: SttpBackend[IO, Any]): IO[List[Record]] = // Note the return type
+def request(backend: SttpBackend[IO, Any], buses: List[String], trams: List[String]): IO[List[Record]] =
   basicRequest
     .post(apiUri)
     .body(payload(buses, trams)) // Something like busList[bus][]=110&busList[tram][]=31&busList[tram][]=33
@@ -539,6 +527,30 @@ def request(backend: SttpBackend[IO, Any]): IO[List[Record]] = // Note the retur
     .rethrow                     // Fail `IO` on all errors, we are being simple here
 ```
 
+---
+
+# Refactoring time! 🚧
+
+<!-- _class: line-numbers -->
+<!-- _transition: none -->
+
+How hard can it be?
+
+```scala
+trait Vehicles[F[_]] {
+  def list(): F[Seq[Vehicle]]
+  // 👆 each time we call this, we receive latest data from API
+}
+
+object Vehicles {
+
+  def mpkWrocInstance(
+      backend: SttpBackend[IO, Any],
+      buses: List[String],
+      trams: List[String]
+  ): Vehicles[IO] = ??? // make your guess
+}
+```
 ---
 
 # Refactoring time! 🚧
@@ -559,38 +571,10 @@ object Vehicles {
       backend: SttpBackend[IO, Any],
       buses: List[String],
       trams: List[String]
-  ): Vehicles[IO] = ???
-    // Same as `request` method
-
-}
-```
-
----
-
-# `Vehicles` service
-
-Now that we have a model, let's implement the service
-
-```scala
-trait Vehicles[F[_]] {
-  def list(): F[Seq[Vehicle]]
-}
-```
-
----
-
-<!-- _class: line-numbers -->
-
-# `Vehicles` service
-
-```scala
-new Vehicles[IO] {
-  def list(): IO[Seq[Vehicle]] = 
-    for {
-      now <- IO.realTimeInstant  // Get the time of measurement
-      records <- request         // Same as few slides before
-      results = records          // map each resulting row from MPK API
-        .map { record =>         // and turn it into our `Vehicle` model
+  ): Vehicles[IO] = { () =>
+    (request(backend, buses, trams), IO.realTimeInstant).mapN {
+      (responses, now) =>
+        responses.map { record =>
           Vehicle(
             lineName = Vehicle.LineName(record.name),
             measuredAt = now,
@@ -598,9 +582,15 @@ new Vehicles[IO] {
             id = Vehicle.Id(record.k.toString)
           )
         }
-    } yield results
+    }
+  }
 }
 ```
+
+---
+
+![bg 50%](./img/achievement.png)
+
 
 ---
 
@@ -621,7 +611,6 @@ case class Vehicle(
   id: Vehicle.Id
 )
 ```
-
 
 ---
 
@@ -656,7 +645,7 @@ case class Vehicle(
   position: Position,
   id: Vehicle.Id
 ){
-  // Don't worry about the details, it's a shameless copy-paste from StackOverflow 😅
+  // It's a shameless copy-paste from StackOverflow 😅
   def distance(other: Vehicle): Double = {
     val earthRadius = 6371000 // Earth's radius in meters
     val lat1 = toRadians(position.latitude)
@@ -720,12 +709,26 @@ measurement1.distance(measurement2) // like this
 
 ---
 
-# Recap from streaming
+# Functional stream
 
-* Represent sequences of data elements
-* Can be finite or infinite, synchronous or asynchronous
-* Offer operations for transforming, filtering, and aggregating data
+Think of a sequence of data elements that
+* Computes values on demand; is lazy
+* Can be infinite or finite
+* Can be asynchronous - supports non-blocking operations
+* Has a powerful API - offers rich combinators
 
+<!-- 
+- fs2 streams are sequences of data elements, representing anything that can be processed as a stream.
+
+- fs2 streams are lazy, computing values only as they are needed.
+
+- While not all streams are infinite, fs2 streams can represent infinite sequences, depending on the source of data.
+
+- fs2 supports asynchronous operations, allowing for non-blocking I/O operations.
+
+- fs2 offers a rich set of combinators for transforming and manipulating streams, enabling expressive and efficient stream processing.
+
+ -->
 
 ---
 
@@ -752,7 +755,7 @@ Think of it for a second
 
 ---
 
-I asked an LLM for a mutable, old fashioned solution
+I asked an LLM for a mutable, old fashioned solution 🤖
 
 ```scala
 var currentNumber =  1
@@ -823,6 +826,12 @@ val stream: Stream[IO, Int] =
 
 <!-- _transition: none -->
 
+![bg 60%](./img/stream-timeline-empty.png)
+
+---
+
+<!-- _transition: none -->
+
 ![bg 60%](./img/stream-timeline-first-api-call.png)
 
 ---
@@ -857,7 +866,6 @@ We want to build a stream that:
 * Acts on given time interval like every `N` seconds
 * Lists vehicles using `Vehicles[IO].list()`
 * Joins results by vehicle `id`
-  - Because vehicles are not sorted and some might go missing
 * Calculate the distance using `Vehicle.distance` and the elapsed time
 * Build a map of `(Vehicle.LineName, Vehicle.Id) -> (Distance, AVG Speed)`
 
@@ -877,7 +885,7 @@ Infinite stream that lists vehicles every `N` seconds
 Infinite stream that lists vehicles every `N` seconds
 
 ```scala
-val interval = 7.seconds // 7 is a fine value for `N`
+val interval = 7.seconds
 
 def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] = 
   fs2.Stream
@@ -896,10 +904,8 @@ Easy right?
 - Acts on given time interval like every `N` seconds ✅
 - When the time comes - it lists vehicles using `Vehicles[IO].list()` ✅
 - Joins previous and current result by vehicle `id`
-  - Because vehicles are not sorted and some might go missing
 - Calculate the distance using `Vehicle.distance` and the elapsed time
 - Build a map of `(Vehicle.LineName, Vehicle.Id) -> VehicleStats`
-  - Where `VehicleStats` are distance, time and avg speed
 
 ---
 
@@ -935,6 +941,59 @@ def stats(vehicles: Vehicles[IO]): IO[Map[(LineName, Id), VehicleStats]] =
     // TBC
 ```
 
+--- 
+
+# Step by step
+
+Given two measurements, we want to produce a diff
+
+`(Vehicle, Vehicle) => VehiclePositionDiff`
+
+---
+
+<!-- _class: line-numbers -->
+# Step by step
+
+```scala
+case class VehiclePositionDiff(
+  line: Vehicle.LineName,
+  id: Vehicle.Id,
+  secondsDuration: Double,
+  metersDistance: Double
+)
+
+object VehiclePositionDiff {
+  def between(v1: Vehicle, v1: Vehicle): VehiclePositionDiff = {
+    val duration = secondDuration(v1.measuredAt, v2.measuredAt)
+    val distance = v1.distance(v2)
+    VehiclePositionDiff(v1.lineName, v1.id, duration, distance)
+  }
+}
+```
+---
+
+# Step by step
+
+Now that we have `(Vehicle, Vehicle) => VehiclePositionDiff`
+
+Let's do this for multiple measurements
+
+`(Seq[Vehicle], Seq[Vehicle]) => Seq[VehiclePositionDiff]`
+
+---
+
+# Step by step
+
+<!-- _class: line-numbers -->
+
+Important part
+```scala
+def calculateDiff(snapshot1: Seq[Vehicle], snapshot2: Seq[Vehicle]): Seq[VehiclePositionDiff] =
+  snapshot1
+    .join(snapshot2)
+    .map((v1, v2) => VehiclePositionDiff.between(v1, v2))
+```
+
 ---
 
 # Step by step
@@ -947,40 +1006,16 @@ def calculateDiff(snapshot1: Seq[Vehicle], snapshot2: Seq[Vehicle]): Seq[Vehicle
   snapshot1
     .join(snapshot2)
     .map( (v1, v2) => 
-      VehiclePositionDiff(v1.lineName, v1.id, secondDuration(v1.measuredAt, v2.measuredAt), v1.distance(v2))
+      VehiclePositionDiff.between(v1, v2)
     )
-
-case class VehiclePositionDiff(line: Vehicle.LineName, id: Vehicle.Id, secondsDuration: Double, metersDistance: Double)
 ```
 
----
-
-# Step by step
-
-<!-- _class: line-numbers -->
-
-Important part
-```scala
-def calculateDiff(snapshot1: Seq[Vehicle], snapshot2: Seq[Vehicle]): Seq[VehiclePositionDiff] =
-  snapshot1
-    .join(snapshot2)
-    .map(
-      (v1, v2) => 
-        VehiclePositionDiff(v1.lineName, v1.id, secondDuration(v1.measuredAt, v2.measuredAt), v1.distance(v2))
-    )
-
-case class VehiclePositionDiff(line: Vehicle.LineName, id: Vehicle.Id, secondsDuration: Double, metersDistance: Double)
-```
-
-Boring stuff
+Boring stuff, not optimal
 ```scala
 extension (snapshot: Seq[Vehicle]) {
   def join(snapshot2: Seq[Vehicle]): Seq[(Vehicle, Vehicle)] = 
     snapshot.flatMap{ v1 => snapshot2.collect { case v2 if v2.id == v1.id => (v1, v2)} }
 }
-
-def secondDuration(start: Instant, end: Instant) = 
-  (end.toEpochMilli() - start.toEpochMilli()).toDouble / 1000
 ```
 
 ---
@@ -1013,7 +1048,6 @@ Our stream lists vehicles every `interval` and calculates a list of diffs
 - Joins previous and current result by vehicle `id` ✅
 - Calculate the distance using `Vehicle.distance` and the elapsed time ✅
 - Build a map of `(Vehicle.LineName, Vehicle.Id) -> VehicleStats`
-  - Where `VehicleStats` are distance, time and avg speed
 
 ---
 
@@ -1099,18 +1133,15 @@ object Main extends IOApp.Simple {
   private val buses = List("124", "145", "149")
 
   def program(backend: SttpBackend[IO, Any]) = for {
-    client = MpkWrocApiClient.instance(backend)(buses, trams)
-    vehicles = Vehicles.mpkApiAdapter(client)
-    stats <- StatsCalculator.stats(vehicles)
-    _ <- IO.println(stats.mkString("\n"))
+    vehicles  = Vehicles.mpkWrocInstance(backend, buses, trams)
+    stats     <- StatsCalculator.stats(vehicles)
     aggregate = StatsCalculator.aggregateLines(stats)
-    _ <- IO.println(aggregate.mkString("\n"))
-    fastest = aggregate.maxBy((line, stats) => stats.avgSpeedKMH)
-    slowest = aggregate.minBy((line, stats) => stats.avgSpeedKMH)
-    avg = aggregate.values.map(_.avgSpeedKMH).reduce((a, b) => (a + b) / 2)
-    _ <- IO.println(s"Fastest: $fastest")
-    _ <- IO.println(s"Slowest: $slowest")
-    _ <- IO.println(s"Average: $avg")
+    fastest   = aggregate.maxBy((line, stats) => stats.avgSpeedKMH)
+    slowest   = aggregate.minBy((line, stats) => stats.avgSpeedKMH)
+    avg       = aggregate.values.map(_.avgSpeedKMH).reduce((a, b) => (a + b) / 2)
+    _         <- IO.println(s"Fastest: $fastest")
+    _         <- IO.println(s"Slowest: $slowest")
+    _         <- IO.println(s"Average: $avg")
   } yield ()
 
 }
@@ -1130,65 +1161,7 @@ val numberOfSamples = 72
 
 ---
 
-# Results
-
-Raw results
-
-```scala
-$ scala-cli main.scala
-Compiling project (Scala 3.3.0, JVM)
-Compiled project (Scala 3.3.0, JVM)
-(LineName(22),Id(22695460)) -> VehicleStats(distance = 3919 m, duration = 648 s, avgSpeed = 21.77255912367109 km/h)
-(LineName(145),Id(22586856)) -> VehicleStats(distance = 739 m, duration = 126 s, avgSpeed = 21.122011131387406 km/h) 
-(LineName(145),Id(22586857)) -> VehicleStats(distance = 2234 m, duration = 495 s, avgSpeed = 16.248122084766138 km/h)
-(LineName(21),Id(22696333)) -> VehicleStats(distance = 3193 m, duration = 648 s, avgSpeed = 17.73752484183318 km/h)
-(LineName(18),Id(22696041)) -> VehicleStats(distance = 1540 m, duration = 648 s, avgSpeed = 8.555832904315897 km/h) 
-(LineName(22),Id(22695482)) -> VehicleStats(distance = 0 m, duration = 18 s, avgSpeed = 0.0 km/h)                    
-(LineName(8),Id(22696541)) -> VehicleStats(distance = 2184 m, duration = 648 s, avgSpeed = 12.132485872335115 km/h) 
-(LineName(16),Id(22696499)) -> VehicleStats(distance = 47 m, duration = 207 s, avgSpeed = 0.817474989663128 km/h)  
-(LineName(8),Id(22695483)) -> VehicleStats(distance = 450 m, duration = 351 s, avgSpeed = 4.610678940634453 km/h)   
-(LineName(16),Id(22696372)) -> VehicleStats(distance = 296 m, duration = 594 s, avgSpeed = 1.792706196897714 km/h)   
-(LineName(21),Id(22696103)) -> VehicleStats(distance = 2418 m, duration = 648 s, avgSpeed = 13.434871805600434 km/h)
-(LineName(18),Id(22695928)) -> VehicleStats(distance = 2273 m, duration = 648 s, avgSpeed = 12.626370686549246 km/h)
-(LineName(21),Id(22696071)) -> VehicleStats(distance = 2376 m, duration = 648 s, avgSpeed = 13.198798955281166 km/h)
-(LineName(18),Id(22696086)) -> VehicleStats(distance = 3825 m, duration = 648 s, avgSpeed = 21.24999578241602 km/h)  
-(LineName(8),Id(22696520)) -> VehicleStats(distance = 621 m, duration = 648 s, avgSpeed = 3.4475768495404635 km/h) 
-(LineName(18),Id(22696347)) -> VehicleStats(distance = 2632 m, duration = 648 s, avgSpeed = 14.622727466844548 km/h)
-(LineName(18),Id(22695908)) -> VehicleStats(distance = 1414 m, duration = 315 s, avgSpeed = 16.16467742050453 km/h)
-(LineName(145),Id(22586746)) -> VehicleStats(distance = 2300 m, duration = 387 s, avgSpeed = 21.39539415200732 km/h)
-(LineName(21),Id(22696022)) -> VehicleStats(distance = 1780 m, duration = 648 s, avgSpeed = 9.889907036709332 km/h)
-(LineName(18),Id(22695842)) -> VehicleStats(distance = 2863 m, duration = 648 s, avgSpeed = 15.90794010400161 km/h)
-(LineName(145),Id(22586800)) -> VehicleStats(distance = 3468 m, duration = 648 s, avgSpeed = 19.2690822332545 km/h)
-(LineName(21),Id(22696003)) -> VehicleStats(distance = 1611 m, duration = 648 s, avgSpeed = 8.948502029544693 km/h)
-(LineName(8),Id(22696500)) -> VehicleStats(distance = 0 m, duration = 45 s, avgSpeed = 0.0 km/h)       
-(LineName(8),Id(22696371)) -> VehicleStats(distance = 145 m, duration = 27 s, avgSpeed = 19.30136010668995 km/h)
-(LineName(18),Id(22695857)) -> VehicleStats(distance = 0 m, duration = 207 s, avgSpeed = 0.0 km/h)             
-(LineName(8),Id(22699335)) -> VehicleStats(distance = 1330 m, duration = 648 s, avgSpeed = 7.387016996416382 km/h)
-(LineName(18),Id(22696057)) -> VehicleStats(distance = 770 m, duration = 423 s, avgSpeed = 6.554339292764373 km/h)
-(LineName(16),Id(22697696)) -> VehicleStats(distance = 2419 m, duration = 648 s, avgSpeed = 13.439411970086935 km/h)
-(LineName(124),Id(22675475)) -> VehicleStats(distance = 1314 m, duration = 648 s, avgSpeed = 7.302029977487313 km/h)
-(LineName(21),Id(22695984)) -> VehicleStats(distance = 2304 m, duration = 648 s, avgSpeed = 12.801481111234681 km/h)
-// ...
-```
----
-
-# Results
-
-Aggregate
-
-```scala
-LineName(22) -> VehicleStats(distance = 19127 m, duration = 4572 s, avgSpeed = 15.060665307794535 km/h)
-LineName(16) -> VehicleStats(distance = 16360 m, duration = 5049 s, avgSpeed = 11.664853832122114 km/h)
-LineName(21) -> VehicleStats(distance = 20526 m, duration = 5319 s, avgSpeed = 13.892783846488033 km/h)
-LineName(145) -> VehicleStats(distance = 17318 m, duration = 3600 s, avgSpeed = 17.31835235672147 km/h)
-LineName(149) -> VehicleStats(distance = 815 m, duration = 459 s, avgSpeed = 6.395473232361093 km/h)
-LineName(18) -> VehicleStats(distance = 22863 m, duration = 6507 s, avgSpeed = 12.64896296592901 km/h)
-LineName(124) -> VehicleStats(distance = 15596 m, duration = 3600 s, avgSpeed = 15.59662045634935 km/h)
-LineName(8) -> VehicleStats(distance = 8850 m, duration = 3663 s, avgSpeed = 8.697846722967476 km/h)
-```
-
-
----
+<!-- _transition: none -->
 
 # Stats 📉
 
@@ -1198,7 +1171,19 @@ LineName(8) -> VehicleStats(distance = 8850 m, duration = 3663 s, avgSpeed = 8.6
 * Trams 🚊
   * Fastest: **15.1** km/h - line `22`
   * Slowest: **8.7** km/h - line `8`
-* Average: **11.2** km/h
+*
+
+---
+
+# Stats 📉
+
+- Buses 🚌
+  - Fastest: **17.3** km/h - line `145`
+  - Slowest: **6.4** km/h - line `149`
+- Trams 🚊
+  - Fastest: **15.1** km/h - line `22`
+  - Slowest: **8.7** km/h - line `8`
+- Average: **11.2** km/h
 
 ![bg right:40% 100%](./img/not-stonks.png)
 
@@ -1225,19 +1210,8 @@ LineName(8) -> VehicleStats(distance = 8850 m, duration = 3663 s, avgSpeed = 8.6
 # But we have learned something! 📖
 
 * Data is not easy to find
-* Streams are not that hard
-* Smartly applied `Monoid` can save you some code
-* Bike can save you some time
-
----
-
-# Kraków specific links
-
-- https://github.com/tomekzaw/ttss
-- https://gtfs.ztp.krakow.pl/robi
-- http://www.ttss.krakow.pl/internetservice/
-- http://ttss.mpk.krakow.pl/internetservice/
-- http://kokon.mpk.krakow.pl/
+* Separation of concerns is important
+* Your entire program can be modelled as a stream
 
 ---
 

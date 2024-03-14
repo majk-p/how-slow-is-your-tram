@@ -17,6 +17,42 @@ object Vehicles {
 
   def apply[F[_]](using ev: Vehicles[F]): Vehicles[F] = ev
 
+  private val apiUri = uri"https://mpk.wroc.pl/bus_position"
+  private def request(
+      backend: SttpBackend[IO, Any],
+      buses: List[String],
+      trams: List[String]
+  ) =
+    basicRequest
+      .post(apiUri)
+      .body(payload(buses, trams))
+      .contentType(MediaType.ApplicationXWwwFormUrlencoded)
+      .response(asJson[List[MpkRecord]])
+      .send(backend)
+      .map(_.body)
+      .rethrow
+  private def payload(buses: List[String], trams: List[String]) =
+    (trams.map(v => s"busList[tram][]=$v") ++
+      buses.map(v => s"busList[bus][]=$v")).mkString("&")
+
+  def xInstance(
+      backend: SttpBackend[IO, Any],
+      buses: List[String],
+      trams: List[String]
+  ): Vehicles[IO] = { () =>
+    (request(backend, buses, trams), IO.realTimeInstant).mapN {
+      (responses, now) =>
+        responses.map { record =>
+          Vehicle(
+            lineName = Vehicle.LineName(record.name),
+            measuredAt = now,
+            position = Position(record.x, record.y),
+            id = Vehicle.Id(record.k.toString)
+          )
+        }
+    }
+  }
+
   def mpkWrocInstance(
       backend: SttpBackend[IO, Any],
       buses: List[String],
@@ -48,6 +84,18 @@ object Vehicles {
           .send(backend)
           .map(_.body)
           .rethrow
+
+      val x =
+        (request, IO.realTimeInstant).mapN { (responses, now) =>
+          responses.map { record =>
+            Vehicle(
+              lineName = Vehicle.LineName(record.name),
+              measuredAt = now,
+              position = Position(record.x, record.y),
+              id = Vehicle.Id(record.k.toString)
+            )
+          }
+        }
 
       private def payload(buses: List[String], trams: List[String]) =
         (trams.map(v => s"busList[tram][]=$v") ++
