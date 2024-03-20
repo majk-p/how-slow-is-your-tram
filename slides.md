@@ -7,6 +7,7 @@ marp: true
 ---
 <!-- _footer: Photo by [Guillaume.G](https://commons.wikimedia.org/wiki/File:Tram_Wroclaw,_Moderus_Beta_MF_24_AC_n%C2%B02916_(cropped).jpg#mw-jump-to-license) CC BY-SA 4.0 -->
 <!-- _class: intro -->
+
 # How slow is your tram? :tram:
 
 ###### using STTP, CE3, FS2 and scala-cli
@@ -32,12 +33,6 @@ marp: true
 
 ---
 
-# Harry Potter
-
-![bg right:60% 90%](img/voldemort-smiling.gif)
-
----
-
 # And...
 
 ---
@@ -50,15 +45,25 @@ marp: true
 
 --- 
 
+<!-- _class: sxm-logo -->
+
 # My name is Michał :wave:
 
-## I'm ultimately unlucky with public transportation 
+- Senior Software engineer @ SiriusXM
+- Blog about Scala
+- OSS from time to time
 
 --- 
 
 # My name is Michał :wave:
 
-## I'm ultimately unlucky with public transportation 
+## I have bad luck with public transportation
+
+--- 
+
+# My name is Michał :wave:
+
+## I have bad luck with public transportation
 
 And this is my fs2 story with trams
 
@@ -85,7 +90,7 @@ And this is my fs2 story with trams
 
 <!-- _footer: Foto: [Mateusz Iwanczyk Photo](https://www.facebook.com/MateuszIwanczykPhotography) -->
 
-# They took stopping at a bus stop too literally
+# They took a bus stop too literally
 
 ![bg left:60% width:800px](./img/tram-derailment-2.jpg)
 
@@ -124,6 +129,9 @@ Thus I asked myself
 
 # How slow is your tram?
 
+---
+
+# Let's try to find out
 
 ---
 
@@ -160,7 +168,7 @@ https://mpk.wroc.pl/strefa-pasazera/zaplanuj-podroz/mapa-pozycji-pojazdow
 
 ---
 
-# Investigate 🕵️
+# Inspect 🕵️
 
 ![height:400px](./img/inspector.png)
 
@@ -301,49 +309,11 @@ case class Record(
 
 ---
 
-
 # STTP
 
 <!-- _class: line-numbers -->
 
 ```scala
-val apiUri = uri"https://mpk.wroc.pl/bus_position"
-
-def payload(buses: List[String], trams: List[String]) =
-  (trams.map(v => s"busList[tram][]=$v") ++
-    buses.map(v => s"busList[bus][]=$v")).mkString("&")
-
-def request(backend: SttpBackend[IO, Any], buses: List[String], trams: List[String]) = 
-  basicRequest
-    .post(apiUri)
-    .body(payload(buses, trams)) // Something like busList[bus][]=110&busList[tram][]=31&busList[tram][]=33
-    .contentType(MediaType.ApplicationXWwwFormUrlencoded)
-    .response(asJson[List[Record]])
-    .send(backend)
-    .map(_.body)                 // We are only interested in the result
-    .rethrow                     // Fail `IO` on all errors, we are being simple here
-```
-
----
-
-# STTP
-
-<!-- _class: line-numbers -->
-
-```scala
-val apiUri = uri"https://mpk.wroc.pl/bus_position"
-
-def payload(buses: List[String], trams: List[String]) =
-  (trams.map(v => s"busList[tram][]=$v") ++
-    buses.map(v => s"busList[bus][]=$v")).mkString("&")
-
-case class Record(
-  name: String,
-  x: Double,
-  y: Double,
-  k: Int
-) derives Codec.AsObject // This will generate JSON Encoder and Decoder  
-
 def request(
     backend: SttpBackend[IO, Any], buses: List[String], trams: List[String]
   ): IO[List[Record]] = // Note the return type
@@ -749,7 +719,7 @@ Short intro
 
 ---
 
-## How many lines of code would it take without streams?
+## How would it look like without streams?
 
 Think of it for a second
 
@@ -794,16 +764,27 @@ Here's how you do this
 
 
 ```scala
-val stream: Stream[IO, Int] = 
-  Stream
-    .iterate(1)(_ + 1)  // Create an infinite stream of natural numbers
-    .filter(_ % 2 != 0) // Filter for odd numbers: 1, 3, 5, 7, 9, ...
-    .sliding(3)         // Slides over each 3 elements: (1, 3, 5), (3, 5, 7), (5, 7, 9), ...
-    .map { chunk =>
-      chunk(0) + chunk(1) + chunk(2) // Add them together: 9, 15, 21, ...
-    }
-    .take(10)           // Fetch the first ten results
+Stream
+  .iterate(1)(_ + 1)  // Create an infinite stream of natural numbers
+  .filter(_ % 2 != 0) // Filter for odd numbers: 1, 3, 5, 7, 9, ...
+  .sliding(3)         // Slides over each 3 elements: (1, 3, 5), (3, 5, 7), (5, 7, 9), ...
+  .map { chunk =>
+    chunk(0) + chunk(1) + chunk(2) // Add them together: 9, 15, 21, ...
+  }
+  .take(10)           // Fetch the first ten results
 ```
+
+---
+
+# But how does it work 🤔
+
+---
+
+# See it with Aquascape
+
+![](./img/sample-stream-execution.png)
+
+Brought to you with https://zainab-ali.github.io/aquascape
 
 ---
 
@@ -961,6 +942,19 @@ case class VehiclePositionDiff(
   secondsDuration: Double,
   metersDistance: Double
 )
+```
+---
+
+<!-- _class: line-numbers -->
+# Step by step
+
+```scala
+case class VehiclePositionDiff(
+  line: Vehicle.LineName,
+  id: Vehicle.Id,
+  secondsDuration: Double,
+  metersDistance: Double
+)
 
 object VehiclePositionDiff {
   def between(v1: Vehicle, v1: Vehicle): VehiclePositionDiff = {
@@ -979,6 +973,12 @@ Now that we have `(Vehicle, Vehicle) => VehiclePositionDiff`
 Let's do this for multiple measurements
 
 `(Seq[Vehicle], Seq[Vehicle]) => Seq[VehiclePositionDiff]`
+
+---
+
+`(Seq[Vehicle], Seq[Vehicle]) => Seq[VehiclePositionDiff]`
+
+![bg right:30% 100%](./img/stream-timeline-first-diff-cropped.png)
 
 ---
 
@@ -1151,7 +1151,7 @@ object Main extends IOApp.Simple {
 
 # Results
 
-Captured at 05.09.2023 08:55
+Captured at 20.03.2024 09:48
 
 Parameters
 ```scala
@@ -1166,11 +1166,11 @@ val numberOfSamples = 72
 # Stats 📉
 
 * Buses 🚌
-  * Fastest: **17.3** km/h - line `145`
-  * Slowest: **6.4** km/h - line `149`
+  * Fastest: **20.7** km/h - line `149`
+  * Slowest: **14.4** km/h - line `124`
 * Trams 🚊
-  * Fastest: **15.1** km/h - line `22`
-  * Slowest: **8.7** km/h - line `8`
+  * Fastest: **13.7** km/h - line `21`
+  * Slowest: **11.4** km/h - line `16`
 *
 
 ---
@@ -1178,12 +1178,12 @@ val numberOfSamples = 72
 # Stats 📉
 
 - Buses 🚌
-  - Fastest: **17.3** km/h - line `145`
-  - Slowest: **6.4** km/h - line `149`
+  - Fastest: **20.7** km/h - line `149`
+  - Slowest: **14.4** km/h - line `124`
 - Trams 🚊
-  - Fastest: **15.1** km/h - line `22`
-  - Slowest: **8.7** km/h - line `8`
-- Average: **11.2** km/h
+  - Fastest: **13.7** km/h - line `21`
+  - Slowest: **11.4** km/h - line `16`
+- Average: **15.8** km/h
 
 ![bg right:40% 100%](./img/not-stonks.png)
 
@@ -1203,7 +1203,7 @@ val numberOfSamples = 72
 
 #### How slow is your tram? :tram:
 
-# Too slow!
+# Still slower than bike 🚴
 
 ---
 
@@ -1211,7 +1211,7 @@ val numberOfSamples = 72
 
 * Data is not easy to find
 * Separation of concerns is important
-* Your entire program can be modelled as a stream
+* Streams can be a nice way to model business logic
 
 ---
 
@@ -1230,28 +1230,6 @@ Blog: [blog.michal.pawlik.dev](https://blog.michal.pawlik.dev)
 Linkedin: [Michał Pawlik](https://www.linkedin.com/in/michał-pawlik/)
 Github: [majk-p](https://github.com/majk-p)
 Mastodon: [@majkp@hostux.social](https://hostux.social/@majkp)
-
----
-
-# Bonus #1!
-
----
-
-# Aquascape
-
-Improve you streams understanding with diagrams 
-
-https://zainab-ali.github.io/aquascape/
-
----
-
-![bg 100%](./img/stream-tracing-result-trim.png)
-
----
-
-# Bonus #2!
-
-Monoid magic
 
 ---
 

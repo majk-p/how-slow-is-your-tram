@@ -24,8 +24,8 @@ object Main extends IOApp.Simple {
 
   val trams = List("8", "16", "18", "20", "21", "22")
   val buses = List("124", "145", "149")
-  val interval = 3.seconds
-  val numberOfSamples = 3
+  val interval = 9.seconds
+  val numberOfSamples = 72
 
   def program(backend: SttpBackend[IO, Any]) = for {
     _ <- IO.println("Initializing client")
