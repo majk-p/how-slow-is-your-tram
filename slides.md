@@ -715,7 +715,7 @@ Short intro
 * Slide through by 3 elements `(1, 3, 5), (3, 5, 7), (5, 7, 9), ...`
 * Add each group `9, 15, 21, ...`
 * Take first `10`
-
+<!-- 
 
 ---
 
@@ -747,7 +747,7 @@ while (count <  10) {
 val sums = sumsList.result()
 sums.foreach(println)
 ```
-
+ -->
 
 
 ---
