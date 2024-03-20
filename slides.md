@@ -1212,6 +1212,7 @@ val numberOfSamples = 72
 * Data is not easy to find
 * Separation of concerns is important
 * Streams can be a nice way to model business logic
+* Aquascape is fun!
 
 ---
 
