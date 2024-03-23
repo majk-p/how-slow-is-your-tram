@@ -16,6 +16,20 @@ section h1 {
   color: #eee;
 }
 
+section.sxm-logo h1{
+  color: #333;
+}
+
+section.sxm-logo {
+  background-color: #f1f1f1;
+  color: #333;
+  background-image: url('./img/sxm-scalar-logo.png');
+  background-repeat: no-repeat;
+  background-position: right 5% bottom 5%; /* Positions the logo 5% from the right and bottom of the container */
+  background-size: 400px; /* Adjusts the size of the background image to fit within the container */
+  z-index: 9999; /* Ensures the logo is on top of other elements */
+ }
+
 section.intro::before {
   position: absolute;
   
@@ -28,7 +42,7 @@ section::before {
   position: absolute;
 
   /* Copyright text */
-  content: "© Copyright 2023 Michał Pawlik. All rights reserved.";
+  content: "© Copyright 2024 Michał Pawlik. All rights reserved.";
   font-size: 12px;
   color: #888;
   width: 80%;

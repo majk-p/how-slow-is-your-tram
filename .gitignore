@@ -1,6 +1,5 @@
 output/*
 slides.html
-slides.pdf
 .scala-build
 .metals
 .bsp
