@@ -4,7 +4,7 @@ Slides and code examples for my talk "How slow is your tram?"
 
 ## Slides
 
-See [slides.pdf](./slides.pdf) to view the rendered version.
+See [slides.pdf](https://githubraw.com/majk-p/how-slow-is-your-tram/master/slides.pdf) to view the rendered version.
 
 ## Code examples
 
